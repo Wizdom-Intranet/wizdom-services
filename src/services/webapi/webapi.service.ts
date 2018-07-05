@@ -1,4 +1,5 @@
 import { IWizdomWebApiService, IWizdomWebApiServiceConfig } from "./webapi.interfaces";
+import { IWizdomWebApiUrlBuilder } from "./webapi.urlBuilder";
 
 interface IWizdomWebApiServiceState {
     corsProxyIframe: object;
@@ -19,19 +20,14 @@ function getWizdomWebApiServiceState() {
 }
 
 export class WizdomWebApiService implements IWizdomWebApiService {    
-    constructor(private config: IWizdomWebApiServiceConfig) {             
+    constructor(private urlBuilder: IWizdomWebApiUrlBuilder) {             
         var state = getWizdomWebApiServiceState();
         if(state.corsProxyIframe == null)
             state.corsProxyIframe = this.createIFrame();
         if(state.webapiService == null)
             state.webapiService = this;
     }    
-    
-    private buildFullUrl(url) {
-        url += url.indexOf("?") > 0 ? "&" : "?";
-        url += "SPHostUrl=" + this.config.spHostUrl;
-        return "/" + url;
-    }
+        
     private makeRequest(url, callback, method, data) {        
         var state = getWizdomWebApiServiceState();
         if (state.deferredQueue != null) { // corsproxy not ready yet. Queue up the requests
@@ -44,7 +40,7 @@ export class WizdomWebApiService implements IWizdomWebApiService {
             state.requestQueue[state.requestIndex] = callback;
             state.corsProxyIframe["contentWindow"].postMessage(JSON.stringify({
                 method: method,
-                url: state.webapiService.buildFullUrl(url),
+                url: state.webapiService.urlBuilder.buildFullUrl(url),
                 requestIndex: state.requestIndex,
                 data: data
             }), "*");
@@ -82,9 +78,8 @@ export class WizdomWebApiService implements IWizdomWebApiService {
 
         var corsProxyIframe = document.createElement("iframe");
         corsProxyIframe.style.display = "none";
-
-        var url = this.config.spHostUrl + "/_layouts/15/appredirect.aspx?client_id=" + this.config.clientId + "&redirect_uri=" + this.config.appUrl + "Base/WizdomCorsProxy.aspx?{StandardTokens}" + "%26userLoginName=" + encodeURIComponent(this.config.userLoginName);
-        corsProxyIframe.src = url;
+        
+        corsProxyIframe.src = this.urlBuilder.getAppRedirectUrl();
 
         document.body.appendChild(corsProxyIframe);
 

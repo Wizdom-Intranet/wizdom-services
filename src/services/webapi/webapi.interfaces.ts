@@ -1,3 +1,5 @@
+import { IWizdomWebApiUrlBuilder } from "./webapi.urlBuilder";
+
 export interface IWizdomWebApiService {
     Get(url: string): Promise<any>;
     Delete(url: string): Promise<any>;
