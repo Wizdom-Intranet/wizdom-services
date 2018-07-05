@@ -1,0 +1,40 @@
+{
+    "name": "@wizdom/services",
+    "version": "1.0.0",
+    "description": "A list of core service to ease Wizdom development",
+    "main": "dist/index.js",
+    "types": "dist/main.d.ts",
+    "module": "dist/index.js",
+    "scripts": {
+        "build": "rollup -c",
+        "watch": "rollup -c --watch",
+        "test": "jest",
+        "test:watch": "jest --watch"
+    },
+    "author": "Wizdom A/S",
+    "license": "MIT",
+    "dependencies": {
+        "@microsoft/sp-http": "~1.5.0",
+        "@microsoft/sp-application-base": "~1.5.0",
+        "@microsoft/sp-webpart-base": "~1.5.0",
+        "@microsoft/sp-core-library": "~1.5.0",
+        "@microsoft/sp-extension-base": "~1.5.0",
+        "es6-promise": "4.2.4"
+    },
+    "devDependencies": {
+        "@types/chai": ">=3.4.34 <3.6.0",
+        "@types/jest": "^23.1.4",
+        "@types/mocha": ">=2.2.33 <2.6.0",
+        "jest": "^23.1.4",
+        "jest-serializer-vue": "^2.0.2",
+        "jest-transform-stub": "^1.0.0",
+        "rollup": "^0.50.0",
+        "rollup-plugin-commonjs": "^8.4.1",
+        "rollup-plugin-node-resolve": "^3.3.0",
+        "rollup-plugin-serve": "^0.4.2",
+        "rollup-plugin-typescript2": "^0.8.1",
+        "typescript": "^2.8.3",
+        "ts-jest": "^22.4.6",
+        "vue-jest": "^2.6.0"
+    }
+}

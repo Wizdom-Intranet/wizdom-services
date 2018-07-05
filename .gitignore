@@ -1,0 +1,8 @@
+# Dependency directories
+node_modules
+
+# Cache
+.rpt2_cache
+
+npm-debug*
+dist

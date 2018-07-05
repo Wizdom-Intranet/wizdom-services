@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "lib": [ "es6", "dom" ],
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "dist/definitions"
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
+} 
