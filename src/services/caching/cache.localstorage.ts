@@ -1,6 +1,10 @@
-import { ICacheObject, IWizdomLocalstorageCache } from "./cache.interfaces";
+import { ICacheObject, IWizdomLocalstorageCache, IWizdomPageViewCache } from "./cache.interfaces";
 
 export class WizdomLocalStorageCache implements IWizdomLocalstorageCache {
+
+    constructor(private pageViewCache: IWizdomPageViewCache) {
+
+    }
 
     private GetCacheObject<T>(key: string): ICacheObject<T> {
         var cachedStr = window.localStorage.getItem("Wizdom:" + key);
@@ -26,17 +30,19 @@ export class WizdomLocalStorageCache implements IWizdomLocalstorageCache {
     ExecuteCached<T>(key: string, func: Function, expiresInMilliseconds: number, refreshInMilliseconds: number, refreshDelayInMilliseconds: number = 0): Promise<T> {        
         var forceNoCache = window.location.search.toLowerCase().indexOf("nocache=true") != -1;
         var cacheObj = this.GetCacheObject(key);
-        if (!forceNoCache && cacheObj && cacheObj.created && cacheObj.data) {
+        if (!forceNoCache && cacheObj && cacheObj.created && cacheObj.data) {            
             var now = new Date();
             var created = new Date(cacheObj.created);
             var expires = new Date(created.getTime() + expiresInMilliseconds);
             if (expires > now) {                
                 var refreshTime = new Date(created.getTime() + refreshInMilliseconds);
-                if (refreshTime < now) {                    
-                    setTimeout(() => {                        
-                        func().then(result => {
-                            this.SetCacheObject(key, result);
-                        });
+                if (refreshTime < now) {
+                    this.pageViewCache.ExecuteCached(key, () => {
+                        setTimeout(() => {
+                            func().then(result => {
+                                this.SetCacheObject(key, result);
+                            });
+                        }, refreshDelayInMilliseconds);
                     }, refreshDelayInMilliseconds);
                 }
     
@@ -49,7 +55,7 @@ export class WizdomLocalStorageCache implements IWizdomLocalstorageCache {
                     this.SetCacheObject(key, result);
                     return result as T;
                 });
-            }
+            }      
         }
         else {            
             return func().then(result => {

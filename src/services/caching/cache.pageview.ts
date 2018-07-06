@@ -9,7 +9,7 @@ export class WizdomPageViewCache implements IWizdomPageViewCache {
         return window[funcCacheVariable];
     }
     private GetCacheObject<T>(key: string): ICacheObject<T> {    
-        return this.GetCache()[key.replace(/[\W_]+/g," ")] as ICacheObject<T>;;
+        return this.GetCache()[key.replace(/[\W_]+/g,"")] as ICacheObject<T>;;
     }
 
     private SetCacheObject<T>(key: string, funcResult: T) {    
