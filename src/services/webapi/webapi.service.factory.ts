@@ -34,6 +34,6 @@ export class WizdomWebApiServiceFactory {
 
             window["WizdomWebApiIFrame"] = corsProxyIframe;
         }
-        return window["WizdomWebApiIFrame"]
+        return window["WizdomWebApiIFrame"]["contentWindow"];
     }    
 }
