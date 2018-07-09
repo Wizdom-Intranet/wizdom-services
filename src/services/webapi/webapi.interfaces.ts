@@ -5,9 +5,16 @@ export interface IWizdomWebApiService {
     Put(url: string, data: any): Promise<any>; 
 }
 
-export interface IWizdomWebApiServiceConfig{
-    spHostUrl: string;
-    userLoginName: string;
-    appUrl: string;
-    clientId: string;
+export interface IWizdomWebApiServiceState {    
+    deferredQueue: IArguments[];
+    requestQueue: object;
+    requestIndex: number;
+    eventListenersAttached: boolean;
+    corsProxyReady: boolean
+}
+
+export type IFrameFunction = (recreate?: boolean) => IWizdomCorsProxyIframe;
+
+export interface IWizdomCorsProxyIframe {
+    postMessage(message: string, targetOrigin: string);
 }

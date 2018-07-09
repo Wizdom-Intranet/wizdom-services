@@ -7,7 +7,7 @@ export class WizdomCache implements IWizdomCache {
     PageView: IWizdomPageViewCache;
   
     constructor() {        
-        this.Localstorage = new WizdomLocalStorageCache();
         this.PageView = new WizdomPageViewCache();
+        this.Localstorage = new WizdomLocalStorageCache(this.PageView);        
     }
 }

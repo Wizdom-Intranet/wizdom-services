@@ -1,74 +1,41 @@
-import { IWizdomWebApiService, IWizdomWebApiServiceConfig } from "./webapi.interfaces";
-
-interface IWizdomWebApiServiceState {
-    corsProxyIframe: object;
-    deferredQueue: IArguments[];
-    requestQueue: object;
-    requestIndex: number;
-}
-
-/// Globally shared state
-function getWizdomWebApiServiceState() {
-    return window["WizdomWebApiServiceState"] = window["WizdomWebApiServiceState"] || {
-        corsProxyIframe: null,
-        deferredQueue: [],
-        requestQueue: {},
-        requestIndex: 0,
-        webapiService: null,
-    } as IWizdomWebApiServiceState; 
-}
+import { IWizdomWebApiService, IWizdomWebApiServiceState, IFrameFunction } from "./webapi.interfaces";
 
 export class WizdomWebApiService implements IWizdomWebApiService {    
-    constructor(private config: IWizdomWebApiServiceConfig) {             
-        var state = getWizdomWebApiServiceState();
-        if(state.corsProxyIframe == null)
-            state.corsProxyIframe = this.createIFrame();
-        if(state.webapiService == null)
-            state.webapiService = this;
-    }    
     
-    private buildFullUrl(url) {
-        url += url.indexOf("?") > 0 ? "&" : "?";
-        url += "SPHostUrl=" + this.config.spHostUrl;
-        return "/" + url;
-    }
-    private makeRequest(url, callback, method, data) {        
-        var state = getWizdomWebApiServiceState();
-        if (state.deferredQueue != null) { // corsproxy not ready yet. Queue up the requests
-            //console.info("queued request to: " + url);
-            state.deferredQueue.push(arguments);
-        }
-        else {
-            //console.info("sending request to: " + url);
-            state.requestIndex++;
-            state.requestQueue[state.requestIndex] = callback;
-            state.corsProxyIframe["contentWindow"].postMessage(JSON.stringify({
-                method: method,
-                url: state.webapiService.buildFullUrl(url),
-                requestIndex: state.requestIndex,
-                data: data
-            }), "*");
+    constructor(private spHostUrl: string, private state: IWizdomWebApiServiceState, private getOrCreateIFrame: IFrameFunction) {  
+        this.getOrCreateIFrame(); // initial creation
+
+        if(!state.eventListenersAttached){
+            this.addEventListeners();
+            state.eventListenersAttached = true;
         }
     }
+
+    private addEventListeners(){
+        if (typeof window.addEventListener != 'undefined')
+            window.addEventListener('message', this.postMessageHandler.bind(this), false);
+        else if (typeof window["attachEvent"] != 'undefined')
+            window["attachEvent"]('onmessage', this.postMessageHandler.bind(this));
+    }
+    
     private postMessageHandler(e) {        
-        try {
-            var state = getWizdomWebApiServiceState();
+        try {            
             var message = JSON.parse(e.data);
             if (!message.command)
                 return;
 
             if (message.command === "WizdomCorsProxySuccess") {
-                console.timeEnd("corsproxy ready");
-                var queue = state.deferredQueue;
-                state.deferredQueue = null;
-                for (var i = 0; i < queue.length; i++) {
-                    state.webapiService.makeRequest.apply(null, queue[i]);
+                console.timeEnd("corsproxy ready");                
+                this.state.corsProxyReady = true;
+                for (var i = 0; i < this.state.deferredQueue.length; i++) {
+                    this.makeRequest.apply(this, this.state.deferredQueue[i]);
                 }
+                this.state.deferredQueue = [];
             } else if (message.command === "WizdomCorsProxyFailed") {
                 alert("WizdomCorsProxyFailed");
             } else if (message.command === "RequestSuccess") {
                 //console.info("request success", message);
-                state.requestQueue[message.requestIndex](message.result);
+                this.state.requestQueue[message.requestIndex](message.result);
             } else if (message.command === "TokenExpired") {
                 console.log("got token expired");
             }
@@ -76,25 +43,29 @@ export class WizdomWebApiService implements IWizdomWebApiService {
             //console.log("wizdom postmessage error", e.data, ex);
         }
     }
+        
+    public makeRequest(url, callback, method, data) {                 
+        if (!this.state.corsProxyReady) { // corsproxy not ready yet. Queue up the requests
+            //console.info("queued request to: " + url);
+            this.state.deferredQueue.push(arguments);
+        }
+        else {
+            //console.info("sending request to: " + url);
+            url += url.indexOf("?") > 0 ? "&" : "?";
+            url += "SPHostUrl=" + this.spHostUrl;
+            if(url[0] != "/")
+                url = "/" + url;
 
-    private createIFrame(): any {
-        console.time("corsproxy ready"); // start timer for corsproxy
-
-        var corsProxyIframe = document.createElement("iframe");
-        corsProxyIframe.style.display = "none";
-
-        var url = this.config.spHostUrl + "/_layouts/15/appredirect.aspx?client_id=" + this.config.clientId + "&redirect_uri=" + this.config.appUrl + "Base/WizdomCorsProxy.aspx?{StandardTokens}" + "%26userLoginName=" + encodeURIComponent(this.config.userLoginName);
-        corsProxyIframe.src = url;
-
-        document.body.appendChild(corsProxyIframe);
-
-        if (typeof window.addEventListener != 'undefined')
-            window.addEventListener('message', this.postMessageHandler, false);
-        else if (typeof window["attachEvent"] != 'undefined')
-            window["attachEvent"]('onmessage', this.postMessageHandler);
-
-        return corsProxyIframe;
-    }    
+            this.state.requestIndex++;
+            this.state.requestQueue[this.state.requestIndex] = callback;
+            this.getOrCreateIFrame().postMessage(JSON.stringify({
+                method: method,
+                url: url,
+                requestIndex: this.state.requestIndex,
+                data: data
+            }), "*");
+        }
+    }
 
     public Get(url: string): Promise<any> {
         return new Promise((resolve, reject) => {

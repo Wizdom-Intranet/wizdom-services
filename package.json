@@ -1,12 +1,13 @@
 {
     "name": "@wizdom/services",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "A list of core service to ease Wizdom development",
     "main": "dist/index.js",
     "types": "dist/main.d.ts",
     "module": "dist/index.js",
     "scripts": {
         "build": "rollup -c",
+        "build:watch": "rollup -c --watch",
         "watch": "rollup -c --watch",
         "test": "jest",
         "test:watch": "jest --watch"
