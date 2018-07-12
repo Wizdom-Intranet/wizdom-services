@@ -1,24 +1,41 @@
 import typescript from 'rollup-plugin-typescript2';
-import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
+import generatePackageJson from 'rollup-plugin-generate-package-json';
+import sourcemaps from 'rollup-plugin-sourcemaps';
+import copy from 'rollup-plugin-cpy';
 import pkg from './package.json';
-import serve from 'rollup-plugin-serve';
 const rollup = require('rollup');
 const input = "src/main.ts";
 
-console.log(rollup);
-
 export default [
-    { // bundlers builds
+    {
         input: input,
         external: Object.keys(pkg.dependencies || {}), //
         plugins: [
-            typescript()
+            typescript(),
+            generatePackageJson({
+                baseContents: {
+                    name: pkg.name,
+                    version: pkg.version,
+                    description: pkg.description,
+                    main: pkg.main.replace(/^dist\//,''),
+                    types: pkg.types.replace(/^dist\//,''),
+                    module: pkg.module.replace(/^dist\//,''),
+                    author: pkg.author,
+                    license: pkg.license
+                }
+            }),
+            copy({
+                files: ["./README.md"],
+                dest: "dist",
+                verbose: true
+            }),
+            sourcemaps,
         ],
         output: [
             {
                 file: pkg.module,
-                format: 'es'
+                sourceMap: true,
+                format: 'es',
             }
         ]
     }
