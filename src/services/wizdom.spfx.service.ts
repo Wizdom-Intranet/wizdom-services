@@ -9,6 +9,8 @@ import { getQueryStringParameterByName } from "../shared/getQueryStringParameter
 import { GetWizdomConfiguration } from "./configuration/configuration";
 import { IWizdomWebApiService } from "./webapi/webapi.interfaces";
 import { WizdomWebApiServiceFactory } from "./webapi/webapi.service.factory";
+import { IWizdomCorsProxyService } from "./corsproxy/corsproxy.interfaces";
+import { WizdomCorsProxyServiceFactory } from "./corsproxy/corsproxy.service.factory";
 
 export class WizdomSpfxServices {
     public Cache: IWizdomCache;
@@ -16,6 +18,7 @@ export class WizdomSpfxServices {
     public TranslationService: IWizdomTranslationService;
     public WizdomConfiguration: any;
     public WizdomWebApiService: IWizdomWebApiService;
+    public WizdomCorsProxyService: IWizdomCorsProxyService
     protected spContext: any;
 
     constructor(spContext: any) {
@@ -43,7 +46,10 @@ export class WizdomSpfxServices {
 
         await Promise.all([translationServicePromise, configurationPromise]);
 
-        var wizdomWebApiServiceFactory = new WizdomWebApiServiceFactory(this.WizdomContext, this.spContext.pageContext.web.absoluteUrl, this.spContext.pageContext.user.loginName)
+        let wizdomCorsProxyServiceFactory = new WizdomCorsProxyServiceFactory(this.WizdomContext, this.spContext.pageContext.site.absoluteUrl, this.spContext.pageContext.user.loginName);
+        this.WizdomCorsProxyService = wizdomCorsProxyServiceFactory.Create();
+
+        var wizdomWebApiServiceFactory = new WizdomWebApiServiceFactory(this.WizdomContext, this.spContext.pageContext.site.absoluteUrl, this.spContext.pageContext.user.loginName)
         this.WizdomWebApiService = wizdomWebApiServiceFactory.Create();
 
         return Promise.resolve();        

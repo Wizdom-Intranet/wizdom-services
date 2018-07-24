@@ -6,15 +6,9 @@ export interface IWizdomWebApiService {
 }
 
 export interface IWizdomWebApiServiceState {    
-    deferredQueue: IArguments[];
+    deferredQueue: any[];
     requestQueue: object;
     requestIndex: number;
     eventListenersAttached: boolean;
     corsProxyReady: boolean
-}
-
-export type IFrameFunction = (recreate?: boolean) => IWizdomCorsProxyIframe;
-
-export interface IWizdomCorsProxyIframe {
-    postMessage(message: string, targetOrigin: string);
 }
