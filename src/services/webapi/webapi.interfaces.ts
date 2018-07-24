@@ -6,7 +6,7 @@ export interface IWizdomWebApiService {
 }
 
 export interface IWizdomWebApiServiceState {    
-    deferredQueue: IArguments[];
+    deferredQueue: any[];
     requestQueue: object;
     requestIndex: number;
     eventListenersAttached: boolean;

@@ -22,7 +22,7 @@ export class WizdomWebApiService implements IWizdomWebApiService {
     public makeRequest(url: string, success: Function, fail: Function, method: string, data: any): void {                 
         if (!this.state.corsProxyReady) { // corsproxy not ready yet. Queue up the requests
             //console.info("queued request to: " + url);
-            this.state.deferredQueue.push(arguments);
+            this.state.deferredQueue.push([url, success, fail, method, data]);
         }
         else {
             //console.info("sending request to: " + url);
