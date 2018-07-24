@@ -1,18 +1,20 @@
 import { WizdomWebApiService } from "../webapi.service";
-import { IWizdomCorsProxyIframe, IWizdomWebApiServiceState, IWizdomWebApiService } from "../webapi.interfaces";
+import { IWizdomWebApiServiceState, IWizdomWebApiService } from "../webapi.interfaces";
+import { IWizdomCorsProxyIframe, IWizdomCorsProxyService, IWizdomCorsProxySharedState } from "../../corsproxy/corsproxy.interfaces"
 
 describe("WizdomWebApiService", () => {
     // Mock IFrame
     var postMessageMock;
-    var getIFrameFunction;
+    var corsProxy;
     var state;    
     beforeEach(() => {
         postMessageMock = jest.fn();   
-        getIFrameFunction = () => {
-            return {
-                postMessage: postMessageMock
-            } as IWizdomCorsProxyIframe
-        };
+        corsProxy = {
+            Message: postMessageMock,
+            AddHandler: () => {},
+            corsProxyState: {} as IWizdomCorsProxySharedState,
+            HandleMessage: () => {}
+        } as IWizdomCorsProxyService
 
         state = {
             deferredQueue: [],
@@ -23,7 +25,7 @@ describe("WizdomWebApiService", () => {
     });
 
     function setupWizdomWebApiService(): IWizdomWebApiService {
-        return new WizdomWebApiService("http://sharepointHostUrl.com", state, getIFrameFunction);
+        return new WizdomWebApiService("http://sharepointHostUrl.com", state, corsProxy);
     }
 
     it("should handle path releative api url", () => {  
@@ -32,7 +34,7 @@ describe("WizdomWebApiService", () => {
 
         webapiService.Get("/api/test");
 
-        expect(postMessageMock.mock.calls[0][0]).toContain("\"url\":\"/api/test");
+        expect(postMessageMock.mock.calls[0][0]).toHaveProperty("url", "/api/test?SPHostUrl=http://sharepointHostUrl.com");
     });
 
     it("should handle host releative api url", () => {  
@@ -41,6 +43,6 @@ describe("WizdomWebApiService", () => {
 
         webapiService.Get("api/test");
 
-        expect(postMessageMock.mock.calls[0][0]).toContain("\"url\":\"/api/test");
+        expect(postMessageMock.mock.calls[0][0]).toHaveProperty("url", "/api/test?SPHostUrl=http://sharepointHostUrl.com");
     });
 });
