@@ -12,9 +12,3 @@ export interface IWizdomWebApiServiceState {
     eventListenersAttached: boolean;
     corsProxyReady: boolean
 }
-
-export type IFrameFunction = (recreate?: boolean) => IWizdomCorsProxyIframe;
-
-export interface IWizdomCorsProxyIframe {
-    postMessage(message: string, targetOrigin: string);
-}
