@@ -5,7 +5,7 @@ import { IWizdomCorsProxyIframe, IWizdomCorsProxyService, IWizdomCorsProxyShared
 describe("WizdomWebApiService", () => {
     // Mock IFrame
     var postMessageMock;
-    var corsProxy;
+    var corsProxy : IWizdomCorsProxyService;
     var state;    
     beforeEach(() => {
         postMessageMock = jest.fn();   
@@ -20,29 +20,61 @@ describe("WizdomWebApiService", () => {
             deferredQueue: [],
             requestQueue: {},
             requestIndex: 0,
-            corsProxyReady: false
+            corsProxyReady: null,
+            requestRateLimitCounter : 0
         } as IWizdomWebApiServiceState        
     });
 
     function setupWizdomWebApiService(): IWizdomWebApiService {
-        return new WizdomWebApiService("http://sharepointHostUrl.com", state, corsProxy);
+        return new WizdomWebApiService("http://sharepointHostUrl.com", state, {Create(){return corsProxy}});
     }
 
     it("should handle path releative api url", () => {  
-        state.corsProxyReady = true; // testing a request when cors proxy is ready
         var webapiService = setupWizdomWebApiService();
+        state.corsProxyReady = true; // testing a request when cors proxy is ready
 
         webapiService.Get("/api/test");
-
+        expect(state.requestQueue[1]).toHaveProperty("url", "/api/test"); // the queue, should contain the original url, incase we need to retry on tokenexpired
         expect(postMessageMock.mock.calls[0][0]).toHaveProperty("url", "/api/test?SPHostUrl=http://sharepointHostUrl.com");
     });
 
-    it("should handle host releative api url", () => {  
-        state.corsProxyReady = true; // testing a request when cors proxy is ready
+    it("should handle host releative api url", () => { 
         var webapiService = setupWizdomWebApiService();
+        state.corsProxyReady = true; // testing a request when cors proxy is ready
 
         webapiService.Get("api/test");
-
+        expect(state.requestQueue[1]).toHaveProperty("url", "api/test"); // the queue, should contain the original url, incase we need to retry on tokenexpired
         expect(postMessageMock.mock.calls[0][0]).toHaveProperty("url", "/api/test?SPHostUrl=http://sharepointHostUrl.com");
+    });
+
+    it("should ratelimit request, if to more than 30 requests is made in 1 min", ()=>{
+        console.info = console.error = jest.fn(); // hide console spam from the SUT
+
+        var webapiService = setupWizdomWebApiService();
+         state.corsProxyReady = true; // testing request when cors proxy is ready
+
+        expect.assertions(1);
+
+        for(var i=0;i<30;i++)
+            expect(webapiService.Get("api/test")).rejects.toBeNull(); // this will "force" the promise to actually be "run"
+
+        // expect error for request #31
+        expect(webapiService.Get("api/test")).rejects.toEqual("Corsproxy request ratelimit exceeded");
+    });
+
+    it("should not ratelimit, if more than 30 requests are made over a period of 2 min", async ()=>{
+        console.info = console.error = jest.fn(); // hide console spam from the SUT
+
+        var webapiService = setupWizdomWebApiService();
+        state.corsProxyReady = true; // testing a request when cors proxy is ready
+
+        jest.useFakeTimers();
+
+        expect.assertions(0);
+        for(var i=0;i<48;i++)
+        {
+            expect(webapiService.Get("api/test")).rejects.toBeNull(); // this will "force" the promise to actually be "run"
+            jest.advanceTimersByTime(2500); // 60000/2500 = 24 request / min
+        }
     });
 });

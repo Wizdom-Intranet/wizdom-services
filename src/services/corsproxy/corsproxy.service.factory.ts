@@ -59,10 +59,7 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
 
             } else if (message.command === "WizdomCorsProxyFailed") {
                 alert("WizdomCorsProxyFailed");
-            } else if (message.command === "TokenExpired") {
-                console.log("got token expired");
-                this.Create(true);
-            }
+            } 
         } catch (ex) {
             //console.log("wizdom postmessage error", e.data, ex);
         }

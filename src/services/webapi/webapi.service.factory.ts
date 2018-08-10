@@ -10,7 +10,7 @@ export class WizdomWebApiServiceFactory {
     }
 
     Create() : IWizdomWebApiService {                
-        return new WizdomWebApiService(this.spHostUrl, this.getWebApiSharedState(), this.corsProxyFactory.Create());
+        return new WizdomWebApiService(this.spHostUrl, this.getWebApiSharedState(), this.corsProxyFactory);
     }
 
     private getWebApiSharedState() {
@@ -18,7 +18,10 @@ export class WizdomWebApiServiceFactory {
             deferredQueue: [],
             requestQueue: {},
             requestIndex: 0,
+            reCreateIframeTimer : null,
+            corsProxyReady : null,
             eventListenersAttached: false,
+            requestRateLimitCounter: 0
         } as IWizdomWebApiServiceState; 
     }   
 }
