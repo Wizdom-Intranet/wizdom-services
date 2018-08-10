@@ -10,5 +10,7 @@ export interface IWizdomWebApiServiceState {
     requestQueue: object;
     requestIndex: number;
     eventListenersAttached: boolean;
-    corsProxyReady: boolean
+    corsProxyReady?: boolean;
+    reCreateIframeTimer : NodeJS.Timer;
+    requestRateLimitCounter : number;
 }
