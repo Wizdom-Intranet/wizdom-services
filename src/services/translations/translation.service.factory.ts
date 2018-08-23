@@ -32,8 +32,8 @@ export class WizdomTranslationServiceFactory {
         }, expireIn, refreshIn, refreshDelayIn)
         .then((translations) => {
             // Store a global variable
-            window["WizdomTranslations"] = translations;            
-            return new WizdomTranslationService(translations);            
+            window["WizdomTranslations"] = translations;                           
+            return new WizdomTranslationService(translations, this.context.wizdomdevelopermode);            
         });
     }
 }

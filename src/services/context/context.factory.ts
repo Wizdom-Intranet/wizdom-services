@@ -4,7 +4,7 @@ import { IHttpClient } from "../../shared/httpclient.wrappers/http.interfaces";
 
 export class WizdomContextFactory {
 
-    constructor(private spHttpClient: IHttpClient, private cache: IWizdomCache) {        
+    constructor(private spHttpClient: IHttpClient, private cache: IWizdomCache, private wizdomdevelopermode: boolean) {        
     }
 
     GetWizdomContextAsync(siteAbsoluteUrl: string): Promise<IWizdomContext> {
@@ -28,9 +28,11 @@ export class WizdomContextFactory {
         },  expireIn, refreshIn, refreshDelayIn)
     
         .then((context) => {
-            // Store a global variable
-            window["WizdomContext"] = context;
-            return context as IWizdomContext;
+            // Store a global variable                       
+            var wizdomContext = context as IWizdomContext;            
+            wizdomContext.wizdomdevelopermode = this.wizdomdevelopermode;
+            window["WizdomContext"] = wizdomContext;
+            return wizdomContext;
         });
     }
 }

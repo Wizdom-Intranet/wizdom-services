@@ -48,7 +48,8 @@ describe("WizdomTranslationServiceFactory", () => {
         testWizdomContext = {
             appUrl: "",
             blobUrl: "",
-            clientId: ""
+            clientId: "",
+            wizdomdevelopermode: false
         } as IWizdomContext;
     });
 
