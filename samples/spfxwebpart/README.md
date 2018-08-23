@@ -18,7 +18,7 @@ It requires tenant properties:
 
 ### Install @Wizdom/services
 If changes are made to @wizdom/service a force installation can be done with following command:
-npm install @wizdom/services --force
+npm install @wizdom-intranet/services --force
 
 Recommended for development:
 Use npm link

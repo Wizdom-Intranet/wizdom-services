@@ -25,33 +25,42 @@ export class WizdomSpfxServices {
         this.spContext = spContext;
     }
 
-    public async InitAsync(options: any) : Promise<void> {
-        this.Cache = new WizdomCache();
-        
-        var contextFactory = new WizdomContextFactory(new SpfxSpHttpClient(this.spContext.spHttpClient), this.Cache);
-        this.WizdomContext = await contextFactory.GetWizdomContextAsync(this.spContext.pageContext.site.absoluteUrl);    
+    public async InitAsync(options: any) : Promise<void> {  
+        if(console.info != null)
+            console.info("wizdom-intranet/services initializing");
 
-        var language = this.spContext.pageContext.cultureInfo.currentUICultureName;
-        var spLanguageQueryString = getQueryStringParameterByName("SPLanguage", window.location.href);
-        if(spLanguageQueryString)
-            language = spLanguageQueryString;
-        var translationServiceFactory = new WizdomTranslationServiceFactory(new SpfxHttpClient(this.spContext.httpClient), this.WizdomContext, this.Cache);
-        var translationServicePromise = translationServiceFactory.CreateAsync(language).then(translationService => {
-            this.TranslationService = translationService;
-        });
+        try {
+            this.Cache = new WizdomCache();
 
-        var configurationPromise = GetWizdomConfiguration(new SpfxHttpClient(this.spContext.httpClient), this.WizdomContext, this.Cache).then(configuration => {
-            this.WizdomConfiguration = configuration;
-        });
+            var contextFactory = new WizdomContextFactory(new SpfxSpHttpClient(this.spContext.spHttpClient), this.Cache);
+            this.WizdomContext = await contextFactory.GetWizdomContextAsync(this.spContext.pageContext.site.absoluteUrl);    
 
-        await Promise.all([translationServicePromise, configurationPromise]);
+            var language = this.spContext.pageContext.cultureInfo.currentUICultureName;
+            var spLanguageQueryString = getQueryStringParameterByName("SPLanguage", window.location.href);
+            if(spLanguageQueryString)
+                language = spLanguageQueryString;                
+            var translationServiceFactory = new WizdomTranslationServiceFactory(new SpfxHttpClient(this.spContext.httpClient), this.WizdomContext, this.Cache);
+            var translationServicePromise = translationServiceFactory.CreateAsync(language).then(translationService => {
+                this.TranslationService = translationService;
+            });
 
-        let wizdomCorsProxyServiceFactory = new WizdomCorsProxyServiceFactory(this.WizdomContext, this.spContext.pageContext.site.absoluteUrl, this.spContext.pageContext.user.loginName);
-        this.WizdomCorsProxyService = wizdomCorsProxyServiceFactory.Create();
+            var configurationPromise = GetWizdomConfiguration(new SpfxHttpClient(this.spContext.httpClient), this.WizdomContext, this.Cache).then(configuration => {
+                this.WizdomConfiguration = configuration;
+            });
 
-        var wizdomWebApiServiceFactory = new WizdomWebApiServiceFactory(this.WizdomContext, this.spContext.pageContext.site.absoluteUrl, this.spContext.pageContext.user.loginName)
-        this.WizdomWebApiService = wizdomWebApiServiceFactory.Create();
+            await Promise.all([translationServicePromise, configurationPromise]);
+            
+            var wizdomCorsProxyServiceFactory = new WizdomCorsProxyServiceFactory(this.WizdomContext, this.spContext.pageContext.site.absoluteUrl, this.spContext.pageContext.user.loginName);        
+            //this.WizdomCorsProxyService = wizdomCorsProxyServiceFactory.Create();
+            
+            var wizdomWebApiServiceFactory = new WizdomWebApiServiceFactory(this.WizdomContext, this.spContext.pageContext.site.absoluteUrl, this.spContext.pageContext.user.loginName)
+            this.WizdomWebApiService = wizdomWebApiServiceFactory.Create();
 
-        return Promise.resolve();        
+            console.info("wizdom-intranet/services initialized");
+        } catch(ex) {
+            if(console.exception != null)
+                console.exception("wizdom-intranet/services error initializing", ex);
+        }          
+        return Promise.resolve();
     }
 }

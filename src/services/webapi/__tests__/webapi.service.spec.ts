@@ -26,7 +26,7 @@ describe("WizdomWebApiService", () => {
     });
 
     function setupWizdomWebApiService(): IWizdomWebApiService {
-        return new WizdomWebApiService("http://sharepointHostUrl.com", state, {Create(){return corsProxy}});
+        return new WizdomWebApiService("http://sharepointHostUrl.com", state, {GetOrCreate(){return corsProxy}});
     }
 
     it("should handle path releative api url", () => {  

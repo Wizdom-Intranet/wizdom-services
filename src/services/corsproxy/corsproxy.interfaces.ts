@@ -1,5 +1,5 @@
 export interface IWizdomCorsProxyServiceFactory {
-    Create(recreate: boolean): IWizdomCorsProxyService;
+    GetOrCreate(recreate: boolean): IWizdomCorsProxyService;
 }
 
 export interface IWizdomCorsProxyService {
