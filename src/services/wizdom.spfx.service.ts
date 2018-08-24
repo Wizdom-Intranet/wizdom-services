@@ -25,33 +25,45 @@ export class WizdomSpfxServices {
         this.spContext = spContext;
     }
 
-    public async InitAsync(options: any) : Promise<void> {
-        this.Cache = new WizdomCache();
+    public async InitAsync(options: any) : Promise<void> {  
+        if(console.info != null)
+            console.info("wizdom-intranet/services initializing");
         
-        var contextFactory = new WizdomContextFactory(new SpfxSpHttpClient(this.spContext.spHttpClient), this.Cache);
-        this.WizdomContext = await contextFactory.GetWizdomContextAsync(this.spContext.pageContext.site.absoluteUrl);    
+        try {
+            // Check for development mode            
+            var developmentmodeQueryString = getQueryStringParameterByName("wizdomdevelopermode", window.location.href);
+            var wizdomdevelopermode = developmentmodeQueryString != null && developmentmodeQueryString.toLowerCase() != "false";
 
-        var language = this.spContext.pageContext.cultureInfo.currentUICultureName;
-        var spLanguageQueryString = getQueryStringParameterByName("SPLanguage", window.location.href);
-        if(spLanguageQueryString)
-            language = spLanguageQueryString;
-        var translationServiceFactory = new WizdomTranslationServiceFactory(new SpfxHttpClient(this.spContext.httpClient), this.WizdomContext, this.Cache);
-        var translationServicePromise = translationServiceFactory.CreateAsync(language).then(translationService => {
-            this.TranslationService = translationService;
-        });
+            // Initialize all services
+            this.Cache = new WizdomCache();
 
-        var configurationPromise = GetWizdomConfiguration(new SpfxHttpClient(this.spContext.httpClient), this.WizdomContext, this.Cache).then(configuration => {
-            this.WizdomConfiguration = configuration;
-        });
+            var contextFactory = new WizdomContextFactory(new SpfxSpHttpClient(this.spContext.spHttpClient), this.Cache, wizdomdevelopermode);
+            this.WizdomContext = await contextFactory.GetWizdomContextAsync(this.spContext.pageContext.site.absoluteUrl);    
 
-        await Promise.all([translationServicePromise, configurationPromise]);
+            var language = this.spContext.pageContext.cultureInfo.currentUICultureName;
+            var spLanguageQueryString = getQueryStringParameterByName("SPLanguage", window.location.href);
+            if(spLanguageQueryString)
+                language = spLanguageQueryString;                
+            var translationServiceFactory = new WizdomTranslationServiceFactory(new SpfxHttpClient(this.spContext.httpClient), this.WizdomContext, this.Cache);
+            var translationServicePromise = translationServiceFactory.CreateAsync(language).then(translationService => {
+                this.TranslationService = translationService;
+            });
 
-        let wizdomCorsProxyServiceFactory = new WizdomCorsProxyServiceFactory(this.WizdomContext, this.spContext.pageContext.site.absoluteUrl, this.spContext.pageContext.user.loginName);
-        this.WizdomCorsProxyService = wizdomCorsProxyServiceFactory.Create();
+            var configurationPromise = GetWizdomConfiguration(new SpfxHttpClient(this.spContext.httpClient), this.WizdomContext, this.Cache).then(configuration => {
+                this.WizdomConfiguration = configuration;
+            });
 
-        var wizdomWebApiServiceFactory = new WizdomWebApiServiceFactory(this.WizdomContext, this.spContext.pageContext.site.absoluteUrl, this.spContext.pageContext.user.loginName)
-        this.WizdomWebApiService = wizdomWebApiServiceFactory.Create();
+            var wizdomCorsProxyServiceFactory = new WizdomCorsProxyServiceFactory(this.WizdomContext, this.spContext.pageContext.site.absoluteUrl, this.spContext.pageContext.user.loginName);        
+            this.WizdomCorsProxyService = wizdomCorsProxyServiceFactory.GetOrCreate();                        
+            var wizdomWebApiServiceFactory = new WizdomWebApiServiceFactory(wizdomCorsProxyServiceFactory, this.spContext.pageContext.site.absoluteUrl);
+            this.WizdomWebApiService = wizdomWebApiServiceFactory.Create();
 
-        return Promise.resolve();        
+            await Promise.all([translationServicePromise, configurationPromise]);                       
+
+            console.info("wizdom-intranet/services initialized");
+        } catch(ex) {
+            if(console.exception != null)
+                console.exception("wizdom-intranet/services initializing error", ex);
+        }          
     }
 }

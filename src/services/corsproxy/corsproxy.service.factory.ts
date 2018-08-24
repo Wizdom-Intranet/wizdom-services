@@ -10,11 +10,15 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
         this.addEventListeners();   
     }
 
-    Create(recreate: boolean = false) : IWizdomCorsProxyService {
-        let frame = this.getOrCreateIFrame(recreate);
+    GetOrCreate(recreate: boolean = false) : IWizdomCorsProxyService {
+        var frame = this.getOrCreateIFrame(recreate);
         this.frameService = new WizdomCorsProxyService(frame, this.getCorsProxySharedState());
-
         return this.frameService;
+    }
+
+    private endsWith(str, suffix) : boolean {
+        // using this endswith method to support IE
+        return str.indexOf(suffix, str.length - suffix.length) !== -1;
     }
 
     private getOrCreateIFrame(recreate: boolean = false) : IWizdomCorsProxyIframe {     
@@ -23,12 +27,11 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
             var corsProxyIframe = document.createElement("iframe");
             corsProxyIframe.style.display = "none";
             
-            var appUrl = this.context.appUrl.endsWith("/") ? this.context.appUrl : this.context.appUrl + "/";
+            var appUrl = this.endsWith(this.context.appUrl, "/") ? this.context.appUrl : this.context.appUrl + "/";
             corsProxyIframe.src = this.spHostUrl + "/_layouts/15/appredirect.aspx?client_id=" + this.context.clientId + "&redirect_uri=" + appUrl + "Base/WizdomCorsProxy.aspx?{StandardTokens}" + "%26userLoginName=" + encodeURIComponent(this.userLoginName);            
 
             document.body.appendChild(corsProxyIframe);
        
-
             window["WizdomCorsProxy"] = corsProxyIframe;
         }
         return window["WizdomCorsProxy"]["contentWindow"];

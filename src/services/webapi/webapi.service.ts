@@ -9,12 +9,12 @@ export class WizdomWebApiService implements IWizdomWebApiService {
     private corsProxy : IWizdomCorsProxyService;
 
     constructor(private spHostUrl: string, private state: IWizdomWebApiServiceState, private corsProxyFac: IWizdomCorsProxyServiceFactory) {  
+        this.corsProxy = this.corsProxyFac.GetOrCreate(false);
         if(this.state.corsProxyReady == null) // null = unknown/initial state
-            this.initCorsProxy(false);
+            this.initCorsProxyMessageHandling();        
     }
-    private initCorsProxy(recreate : boolean){
-        this.state.corsProxyReady = false; // false = "creating"
-        this.corsProxy = this.corsProxyFac.Create(recreate);
+    private initCorsProxyMessageHandling() {
+        this.state.corsProxyReady = false; // false = "creating"        
         this.corsProxy.AddHandler("WizdomCorsProxySuccess", (message) => {
             this.state.corsProxyReady = true;
             for (var i = 0; i < this.state.deferredQueue.length; i++) {
@@ -37,7 +37,8 @@ export class WizdomWebApiService implements IWizdomWebApiService {
                 // this.state.corsProxyReady = false;
                 if(!this.state.reCreateIframeTimer){
                     console.log("Recreate iframe");
-                    this.initCorsProxy(true);
+                    this.corsProxy = this.corsProxyFac.GetOrCreate(true);                    
+                    this.initCorsProxyMessageHandling();
     
                     this.state.reCreateIframeTimer = setTimeout(() => { // this will block all token expires for the next 60 sec, to prevent DDOS
                         this.state.reCreateIframeTimer = null;
@@ -45,7 +46,8 @@ export class WizdomWebApiService implements IWizdomWebApiService {
                         if(!this.state.corsProxyReady)
                         {
                             console.log("Still no valid iframe after 60 sec, try again... ");
-                            this.initCorsProxy(true);
+                            this.corsProxy = this.corsProxyFac.GetOrCreate(true);
+                            this.initCorsProxyMessageHandling();
                         }
                     }, 60*1000);
                 }

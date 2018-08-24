@@ -3,10 +3,8 @@ import { IWizdomWebApiService, IWizdomWebApiServiceState } from "./webapi.interf
 import { WizdomWebApiService } from "./webapi.service";
 import { WizdomCorsProxyServiceFactory } from "../corsproxy/corsproxy.service.factory";
 
-export class WizdomWebApiServiceFactory {        
-    private corsProxyFactory: WizdomCorsProxyServiceFactory;
-    constructor(private context: IWizdomContext, private spHostUrl: string, private userLoginName: string ) {        
-        this.corsProxyFactory = new WizdomCorsProxyServiceFactory(context, spHostUrl, userLoginName);
+export class WizdomWebApiServiceFactory {
+    constructor(private corsProxyFactory: WizdomCorsProxyServiceFactory, private spHostUrl: string) {                
     }
 
     Create() : IWizdomWebApiService {                
