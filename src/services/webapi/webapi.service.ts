@@ -1,8 +1,8 @@
 import { IWizdomWebApiService, IWizdomWebApiServiceState } from "./webapi.interfaces";
 import { IWizdomCorsProxyServiceFactory, IWizdomCorsProxyService } from "../corsproxy/corsproxy.interfaces";
 
-// max 50 requests/min
-const requestRateLimitCount = 30;
+// max 60 requests/min
+const requestRateLimitCount = 60;
 const requestRateLimitTimeout = 60*1000;
 
 export class WizdomWebApiService implements IWizdomWebApiService {    

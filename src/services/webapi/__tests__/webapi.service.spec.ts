@@ -47,7 +47,7 @@ describe("WizdomWebApiService", () => {
         expect(postMessageMock.mock.calls[0][0]).toHaveProperty("url", "/api/test?SPHostUrl=http://sharepointHostUrl.com");
     });
 
-    it("should ratelimit request, if to more than 30 requests is made in 1 min", ()=>{
+    it("should ratelimit request, if to more than 60 requests is made in 1 min", ()=>{
         console.info = console.error = jest.fn(); // hide console spam from the SUT
 
         var webapiService = setupWizdomWebApiService();
@@ -55,14 +55,14 @@ describe("WizdomWebApiService", () => {
 
         expect.assertions(1);
 
-        for(var i=0;i<30;i++)
+        for(var i=0;i<60;i++)
             expect(webapiService.Get("api/test")).rejects.toBeNull(); // this will "force" the promise to actually be "run"
 
-        // expect error for request #31
+        // expect error for request #61
         expect(webapiService.Get("api/test")).rejects.toEqual("Corsproxy request ratelimit exceeded");
     });
 
-    it("should not ratelimit, if more than 30 requests are made over a period of 2 min", async ()=>{
+    it("should not ratelimit, if more than 60 requests are made over a period of 2 min", async ()=>{
         console.info = console.error = jest.fn(); // hide console spam from the SUT
 
         var webapiService = setupWizdomWebApiService();
@@ -74,7 +74,7 @@ describe("WizdomWebApiService", () => {
         for(var i=0;i<48;i++)
         {
             expect(webapiService.Get("api/test")).rejects.toBeNull(); // this will "force" the promise to actually be "run"
-            jest.advanceTimersByTime(2500); // 60000/2500 = 24 request / min
+            jest.advanceTimersByTime(1250); // 60000/1250 = 48 request / min
         }
     });
 });
