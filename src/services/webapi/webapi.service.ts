@@ -2,8 +2,8 @@ import { IWizdomWebApiService, IWizdomWebApiServiceState } from "./webapi.interf
 import { IWizdomCorsProxyServiceFactory, IWizdomCorsProxyService } from "../corsproxy/corsproxy.interfaces";
 
 // max 60 requests/min
-const requestRateLimitCount = 60;
-const requestRateLimitTimeout = 60*1000;
+const requestRateLimitCount = 300;
+const requestRateLimitTimeout = 5*60*1000;
 
 export class WizdomWebApiService implements IWizdomWebApiService {    
     private corsProxy : IWizdomCorsProxyService;
@@ -74,12 +74,16 @@ export class WizdomWebApiService implements IWizdomWebApiService {
 
             this.state.requestIndex++;
             this.state.requestQueue[this.state.requestIndex] = { success, fail, method, url, data };
-            if(this.state.requestRateLimitCounter<requestRateLimitCount)
+            // rateLimit is only for get requests
+            if(this.state.requestRateLimitCounter<requestRateLimitCount || method != "GET")
             {
-                this.state.requestRateLimitCounter++;
-                setTimeout(() => {
-                    this.state.requestRateLimitCounter--;
-                }, requestRateLimitTimeout);
+                if(method == "GET")
+                {
+                    this.state.requestRateLimitCounter++;
+                    setTimeout(() => {
+                        this.state.requestRateLimitCounter--;
+                    }, requestRateLimitTimeout);
+                }
                 this.corsProxy.Message({
                     method: method,
                     url: fullUrl,
