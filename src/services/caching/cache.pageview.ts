@@ -25,10 +25,9 @@ export class WizdomPageViewCache implements IWizdomPageViewCache {
      * @param func  Any function
      * @param expiresInMilliseconds  The func will not be invoked again within the expire period.
      */
-    public ExecuteCached<T>(key: string, func: Function, expiresInMilliseconds: number) : T {    
-        var forceNoCache = window.location.search.toLowerCase().indexOf("nocache=true") != -1;
+    public ExecuteCached<T>(key: string, func: Function, expiresInMilliseconds: number) : T {            
         var cacheObj = this.GetCacheObject(key);
-        if (!forceNoCache && cacheObj && cacheObj.created) {
+        if (cacheObj && cacheObj.created) {
             var now = new Date();
             var created = new Date(cacheObj.created);
             var expires = new Date(created.getTime() + expiresInMilliseconds);

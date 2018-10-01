@@ -5,12 +5,13 @@ import { SpfxSpHttpClient, SpfxHttpClient } from "../shared/httpclient.wrappers/
 import { IWizdomTranslationService } from "../services/translations/translation.interfaces";
 import { IWizdomCache } from "./caching/cache.interfaces";
 import { IWizdomContext } from "./context/context.interfaces";
-import { getQueryStringParameterByName } from "../shared/getQueryStringParameterByName";
 import { GetWizdomConfiguration } from "./configuration/configuration";
 import { IWizdomWebApiService } from "./webapi/webapi.interfaces";
 import { WizdomWebApiServiceFactory } from "./webapi/webapi.service.factory";
 import { IWizdomCorsProxyService } from "./corsproxy/corsproxy.interfaces";
 import { WizdomCorsProxyServiceFactory } from "./corsproxy/corsproxy.service.factory";
+import { IWizdomDeveloperMode } from "../shared/developermode.interface";
+import { LocationWrapper } from "../shared/location.wrapper";
 
 export class WizdomSpfxServices {
     public Cache: IWizdomCache;
@@ -31,22 +32,30 @@ export class WizdomSpfxServices {
         
         try {
             // Check for development mode            
-            var developmentmodeQueryString = getQueryStringParameterByName("wizdomdevelopermode", window.location.href);
-            var wizdomdevelopermode = developmentmodeQueryString != null && developmentmodeQueryString.toLowerCase() != "false";
+            var locationWrapper = new LocationWrapper();
+            var developmentmodeQueryString = locationWrapper.GetQueryString("wizdomdevelopermode");
 
+            var wizdomdevelopermode: IWizdomDeveloperMode;
+            if(developmentmodeQueryString != null && developmentmodeQueryString.toLowerCase() != "false"){
+                try{
+                    wizdomdevelopermode = JSON.parse(developmentmodeQueryString) as IWizdomDeveloperMode;
+                } catch(ex){
+                    console.error("Invalid developermode", ex);                    
+                }
+            }
             // Initialize all services
-            this.Cache = new WizdomCache();
+            this.Cache = new WizdomCache(wizdomdevelopermode, locationWrapper);
 
             var contextFactory = new WizdomContextFactory(new SpfxSpHttpClient(this.spContext.spHttpClient), this.Cache, wizdomdevelopermode);
             this.WizdomContext = await contextFactory.GetWizdomContextAsync(this.spContext.pageContext.site.absoluteUrl);    
 
             var language = this.spContext.pageContext.cultureInfo.currentUICultureName;
-            var spLanguageQueryString = getQueryStringParameterByName("SPLanguage", window.location.href);
+            var spLanguageQueryString = locationWrapper.GetQueryString("SPLanguage");
             if(spLanguageQueryString)
-                language = spLanguageQueryString;                
+                language = spLanguageQueryString;
             var translationServiceFactory = new WizdomTranslationServiceFactory(new SpfxHttpClient(this.spContext.httpClient), this.WizdomContext, this.Cache);
             var translationServicePromise = translationServiceFactory.CreateAsync(language).then(translationService => {
-                this.TranslationService = translationService;
+                this.TranslationService = translationService; 
             });
 
             var configurationPromise = GetWizdomConfiguration(new SpfxHttpClient(this.spContext.httpClient), this.WizdomContext, this.Cache).then(configuration => {

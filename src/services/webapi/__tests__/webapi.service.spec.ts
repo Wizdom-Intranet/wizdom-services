@@ -3,6 +3,15 @@ import { IWizdomWebApiServiceState, IWizdomWebApiService } from "../webapi.inter
 import { IWizdomCorsProxyIframe, IWizdomCorsProxyService, IWizdomCorsProxySharedState } from "../../corsproxy/corsproxy.interfaces"
 
 describe("WizdomWebApiService", () => {
+    // Mock console
+    (window as any).console = {};    
+    const consoleWarnMock = jest.fn();    
+    window.console.warn = consoleWarnMock;
+    const consoleInfoMock = jest.fn();
+    window.console.info = consoleInfoMock;
+    const consoleLogMock = jest.fn();
+    window.console.log = consoleLogMock;
+
     // Mock IFrame
     var postMessageMock;
     var corsProxy : IWizdomCorsProxyService;
@@ -36,6 +45,7 @@ describe("WizdomWebApiService", () => {
         webapiService.Get("/api/test");
         expect(state.requestQueue[1]).toHaveProperty("url", "/api/test"); // the queue, should contain the original url, incase we need to retry on tokenexpired
         expect(postMessageMock.mock.calls[0][0]).toHaveProperty("url", "/api/test?SPHostUrl=http://sharepointHostUrl.com");
+        expect(consoleInfoMock.mock.calls[0][0]).toBe("Sending request to: /api/test");
     });
 
     it("should handle host releative api url", () => { 
@@ -45,6 +55,7 @@ describe("WizdomWebApiService", () => {
         webapiService.Get("api/test");
         expect(state.requestQueue[1]).toHaveProperty("url", "api/test"); // the queue, should contain the original url, incase we need to retry on tokenexpired
         expect(postMessageMock.mock.calls[0][0]).toHaveProperty("url", "/api/test?SPHostUrl=http://sharepointHostUrl.com");
+        expect(consoleInfoMock.mock.calls[0][0]).toBe("Sending request to: /api/test");
     });
 
     it("should ratelimit request, if to more than 300 GET requests is made in 5 min", ()=>{

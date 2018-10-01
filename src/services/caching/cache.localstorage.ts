@@ -27,10 +27,9 @@ export class WizdomLocalStorageCache implements IWizdomLocalstorageCache {
      * @param refreshDelayInMilliseconds  If the refresh period is expired. The func will be executed delayed by these seconds. Use this to remove load from the first few seconds of a pageload.
      * @returns Promise<T>
      */
-    ExecuteCached<T>(key: string, func: Function, expiresInMilliseconds: number, refreshInMilliseconds: number, refreshDelayInMilliseconds: number = 0): Promise<T> {        
-        var forceNoCache = window.location.search.toLowerCase().indexOf("nocache=true") != -1;
+    ExecuteCached<T>(key: string, func: Function, expiresInMilliseconds: number, refreshInMilliseconds: number, refreshDelayInMilliseconds: number = 0): Promise<T> {                
         var cacheObj = this.GetCacheObject(key);
-        if (!forceNoCache && cacheObj && cacheObj.created && cacheObj.data) {            
+        if (cacheObj && cacheObj.created && cacheObj.data) {
             var now = new Date();
             var created = new Date(cacheObj.created);
             var expires = new Date(created.getTime() + expiresInMilliseconds);
