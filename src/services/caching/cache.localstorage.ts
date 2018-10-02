@@ -2,7 +2,7 @@ import { ICacheObject, IWizdomLocalstorageCache, IWizdomPageViewCache } from "./
 
 export class WizdomLocalStorageCache implements IWizdomLocalstorageCache {
 
-    constructor(private pageViewCache: IWizdomPageViewCache) {
+    constructor(private pageViewCache: IWizdomPageViewCache, private forceNoCache: boolean) {
 
     }
 
@@ -14,7 +14,7 @@ export class WizdomLocalStorageCache implements IWizdomLocalstorageCache {
     private SetCacheObject<T>(key: string, data: T) {
         var cacheObj = JSON.stringify({
             data,
-            created: new Date().toUTCString()
+            created: new Date(Date.now()).toUTCString()
         } as ICacheObject<T>);
         window.localStorage.setItem("Wizdom:" + key, cacheObj);
     }
@@ -28,12 +28,12 @@ export class WizdomLocalStorageCache implements IWizdomLocalstorageCache {
      * @returns Promise<T>
      */
     ExecuteCached<T>(key: string, func: Function, expiresInMilliseconds: number, refreshInMilliseconds: number, refreshDelayInMilliseconds: number = 0): Promise<T> {                
-        var cacheObj = this.GetCacheObject(key);
-        if (cacheObj && cacheObj.created && cacheObj.data) {
-            var now = new Date();
+        var cacheObj = this.GetCacheObject(key);        
+        if (!this.forceNoCache && cacheObj && cacheObj.created && cacheObj.data) {                        
+            var now = new Date(Date.now());
             var created = new Date(cacheObj.created);
             var expires = new Date(created.getTime() + expiresInMilliseconds);
-            if (expires > now) {                
+            if (expires > now) {                       
                 var refreshTime = new Date(created.getTime() + refreshInMilliseconds);
                 if (refreshTime < now) {
                     this.pageViewCache.ExecuteCached(key, () => {
@@ -49,14 +49,14 @@ export class WizdomLocalStorageCache implements IWizdomLocalstorageCache {
                     resolve(cacheObj.data as T);
                 });
             }
-            else if (expires <= now) {                
+            else if (expires <= now) {                   
                 return func().then(result => {
                     this.SetCacheObject(key, result);
                     return result as T;
                 });
             }      
         }
-        else {            
+        else {                        
             return func().then(result => {
                 this.SetCacheObject(key, result);
                 return result as T;

@@ -2,22 +2,15 @@ import { IWizdomCache, IWizdomLocalstorageCache, IWizdomPageViewCache } from "./
 import { WizdomPageViewCache } from "./cache.pageview";
 import { WizdomLocalStorageCache } from "./cache.localstorage";
 import { IWizdomDeveloperMode } from "../../shared/developermode.interface";
-import { WizdomPageViewNoCache } from "./cache.pageview.nocache";
-import { WizdomLocalStorageNoCache } from "./cache.localstorage.nocache";
 import { ILocationWrapper } from "../../shared/location.wrapper";
 
 export class WizdomCache implements IWizdomCache {
-    Localstorage: IWizdomLocalstorageCache;
-    PageView: IWizdomPageViewCache;
+    public Localstorage: IWizdomLocalstorageCache;
+    public PageView: IWizdomPageViewCache;
   
     constructor(wizdomDeveloperMode: IWizdomDeveloperMode, locationWrapper: ILocationWrapper) {
-        if((locationWrapper && locationWrapper.GetQueryString("nocache") == "true") || (wizdomDeveloperMode && wizdomDeveloperMode.nocache)){
-            this.PageView = new WizdomPageViewNoCache();
-            this.Localstorage = new WizdomLocalStorageNoCache();
-        }
-        else {
-            this.PageView = new WizdomPageViewCache();
-            this.Localstorage = new WizdomLocalStorageCache(this.PageView);        
-        }
+        var forceNoCache = (locationWrapper && locationWrapper.GetQueryString("nocache") == "true") || (wizdomDeveloperMode && wizdomDeveloperMode.nocache)
+        this.PageView = new WizdomPageViewCache(forceNoCache);
+        this.Localstorage = new WizdomLocalStorageCache(this.PageView, forceNoCache);
     }
 }
