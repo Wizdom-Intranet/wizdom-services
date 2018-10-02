@@ -8,11 +8,7 @@ describe("PageViewCache", () => {
     var locationWrapper;
     beforeEach(() => {                
         developermode = null;
-        locationWrapper = null;
-
-        // When running in VSCode debugger the window object do not exists
-        if(global["window"] == null)
-            global["window"] = {};
+        locationWrapper = null;        
     });
     
     function SetGlobalDateNow(time: number) { // method to control Date.now()                         

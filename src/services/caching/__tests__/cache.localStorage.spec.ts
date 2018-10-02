@@ -6,10 +6,6 @@ import { ILocationWrapper } from "../../../shared/location.wrapper";
 
 describe("LocalStorageCache", () => {    
 
-    // When running in VSCode debugger the window object do not exists    
-    if(global["window"] == null)
-        global["window"] = {};
-
     // When running in VSCode debugger localstorage do not exists
     var localstorageFake = new LocalStorageFake();
         Object.defineProperty(window, 'localStorage', {

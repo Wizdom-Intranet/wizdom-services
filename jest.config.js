@@ -23,7 +23,6 @@ module.exports = {
       //'<rootDir>/(tests/unit/**/*.spec.(js|jsx|ts|tsx)|src/**/__tests__/*.spec.(js|jsx|ts|tsx))',
       //'**/*.spec.(js|jsx|ts|tsx)',      
       '**/src/**/*.spec.(js|jsx|ts|tsx)',      
-    ],
-    testEnvironment: "node"
+    ],    
   }
   
