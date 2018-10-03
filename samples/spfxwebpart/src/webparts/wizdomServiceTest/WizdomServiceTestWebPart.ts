@@ -34,6 +34,7 @@ export default class WizdomServiceTestWebPart extends BaseClientSideWebPart<IWiz
         });
 
         var createdByText = wizdomTranslationService.translate("Created by") + " Wizdom";
+        var notTranslatedText = wizdomTranslationService.translate("Dog Cat Sheep");
 
         this.domElement.innerHTML = `
         <div class="${ styles.wizdomServiceTest }" style="height:500px; overflow:hidden;">
@@ -43,7 +44,9 @@ export default class WizdomServiceTestWebPart extends BaseClientSideWebPart<IWiz
                 <span class="${ styles.title }">Wizdom service no framework sample!</span>
                 <p class="${ styles.description }">
                     <b>Wizdom Translation</b><br/>
-                    ${createdByText}                
+                    Translated: ${createdByText} 
+                    <br/>          
+                    Not translated: ${notTranslatedText}                    
                 </p>     
                 <p class="${ styles.description }">
                     <b>Wizdom Context</b><br/>

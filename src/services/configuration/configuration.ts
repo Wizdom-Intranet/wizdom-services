@@ -9,7 +9,7 @@ export async function GetWizdomConfiguration(httpClient : any, context : IWizdom
     var refreshIn = 10 * 60 * 1000; // 10 minutes
     var refreshDelayIn = 3 * 1000; // 3 seconds
     
-    return cache.Localstorage.ExecuteCached("Configuration:" + context.appUrl, () => {        
+    return cache.Localstorage.ExecuteCached("Configuration:" + context.appUrl, () => {
         var configurationUrl = context.blobUrl + "Base/Bundles/configuration.js";
         return httpClient.get(configurationUrl).then(result => {            
             return result.text().then(content => {

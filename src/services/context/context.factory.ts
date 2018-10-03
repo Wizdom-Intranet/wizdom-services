@@ -1,10 +1,11 @@
 import { IWizdomContext } from "./context.interfaces";
 import { IWizdomCache } from "../caching/cache.interfaces";
 import { IHttpClient } from "../../shared/httpclient.wrappers/http.interfaces";
+import { IWizdomDeveloperMode } from "../../shared/developermode.interface";
 
 export class WizdomContextFactory {
 
-    constructor(private spHttpClient: IHttpClient, private cache: IWizdomCache, private wizdomdevelopermode: boolean) {        
+    constructor(private spHttpClient: IHttpClient, private cache: IWizdomCache, private wizdomdevelopermode: IWizdomDeveloperMode) {        
     }
 
     GetWizdomContextAsync(siteAbsoluteUrl: string): Promise<IWizdomContext> {
@@ -29,8 +30,11 @@ export class WizdomContextFactory {
     
         .then((context) => {
             // Store a global variable                       
-            var wizdomContext = context as IWizdomContext;            
+            var wizdomContext = context as IWizdomContext;                        
             wizdomContext.wizdomdevelopermode = this.wizdomdevelopermode;
+            if(this.wizdomdevelopermode && this.wizdomdevelopermode.wizdomContext) {
+                wizdomContext = { ...wizdomContext, ...this.wizdomdevelopermode.wizdomContext };
+            }
             window["WizdomContext"] = wizdomContext;
             return wizdomContext;
         });
