@@ -26,16 +26,18 @@ export default class WizdomServiceTestWebPart extends BaseClientSideWebPart<IWiz
 
         // Usage
         var wizdomConfiguration = this.wizdomServices.WizdomConfiguration;
-        var wizdomContext = this.wizdomServices.WizdomContext
-        var wizdomTranslationService = this.wizdomServices.TranslationService;    
+        var wizdomContext = this.wizdomServices.WizdomContext;
+        var wizdomTranslationService = this.wizdomServices.TranslationService;
 
-        this.wizdomServices.WizdomWebApiService.Get("api/wizdom/365/principals/me").then(result => {        
+        this.wizdomServices.WizdomWebApiService.Get("api/wizdom/365/principals/me").then(result => {
             alert("Me: " + JSON.stringify(result));
         });
 
         var createdByText = wizdomTranslationService.translate("Created by") + " Wizdom";
         var notTranslatedText = wizdomTranslationService.translate("Dog Cat Sheep");
-
+        this.wizdomServices.Cache.Timestamps.get("timestampConfiguration").then(timestamp => {
+          console.log(new Date(timestamp));
+        });
         this.domElement.innerHTML = `
         <div class="${ styles.wizdomServiceTest }" style="height:500px; overflow:hidden;">
             <div class="${ styles.container }">
@@ -44,22 +46,22 @@ export default class WizdomServiceTestWebPart extends BaseClientSideWebPart<IWiz
                 <span class="${ styles.title }">Wizdom service no framework sample!</span>
                 <p class="${ styles.description }">
                     <b>Wizdom Translation</b><br/>
-                    Translated: ${createdByText} 
-                    <br/>          
-                    Not translated: ${notTranslatedText}                    
-                </p>     
+                    Translated: ${createdByText}
+                    <br/>
+                    Not translated: ${notTranslatedText}
+                </p>
                 <p class="${ styles.description }">
                     <b>Wizdom Context</b><br/>
                     ${JSON.stringify(wizdomContext)}
                 </p>
                 <p class="${ styles.description }">
-                    <b>Wizdom Configuration</b><br/>                
-                    ${JSON.stringify(wizdomConfiguration)}                
-                </p>              
+                    <b>Wizdom Configuration</b><br/>
+                    ${JSON.stringify(wizdomConfiguration)}
+                </p>
                 </div>
             </div>
             </div>
-        </div>`;      
+        </div>`;
     }
   }
 

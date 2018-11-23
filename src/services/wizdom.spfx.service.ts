@@ -44,7 +44,7 @@ export class WizdomSpfxServices {
                 }
             }
             // Initialize all services
-            this.Cache = new WizdomCache(wizdomdevelopermode, locationWrapper);
+            this.Cache = new WizdomCache(wizdomdevelopermode, locationWrapper, new SpfxSpHttpClient(this.spContext.spHttpClient), this.spContext.pageContext.site.absoluteUrl);
 
             var contextFactory = new WizdomContextFactory(new SpfxSpHttpClient(this.spContext.spHttpClient), this.Cache, wizdomdevelopermode);
             this.WizdomContext = await contextFactory.GetWizdomContextAsync(this.spContext.pageContext.site.absoluteUrl);    
