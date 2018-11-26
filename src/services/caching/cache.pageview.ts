@@ -1,16 +1,18 @@
 import { ICacheObject, IWizdomPageViewCache } from "./cache.interfaces";
+import { WizdomCache } from "./cache";
 
 export class WizdomPageViewCache implements IWizdomPageViewCache {
     
-    constructor(private forceNoCache: boolean) {
+    constructor(private parent: WizdomCache, private forceNoCache: boolean) {
         
     }
 
-    private GetCache(): object{    
-        var funcCacheVariable = "WizdomPageViewCache";
-        if(window[funcCacheVariable] == null)
-            window[funcCacheVariable] = {};
-        return window[funcCacheVariable];
+    private GetCache(): object{
+        let globalCacheVariable = this.parent.getGlobalVariable();
+        var funcCacheVariable = "PageView";
+        if(globalCacheVariable[funcCacheVariable] == null)
+            globalCacheVariable[funcCacheVariable] = {};
+        return globalCacheVariable[funcCacheVariable];
     }
     
     private GetCacheObject<T>(key: string): ICacheObject<T> {    

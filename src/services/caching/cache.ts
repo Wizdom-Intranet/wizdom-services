@@ -17,7 +17,7 @@ export class WizdomCache implements IWizdomCache {
   
     constructor(wizdomDeveloperMode: IWizdomDeveloperMode, locationWrapper: ILocationWrapper, spHttpClient?: IHttpClient, absoluteUrl?: string) {
         var forceNoCache = (locationWrapper && locationWrapper.GetQueryString("nocache") == "true") || (wizdomDeveloperMode && wizdomDeveloperMode.nocache)
-        this.PageView = new WizdomPageViewCache(forceNoCache);
+        this.PageView = new WizdomPageViewCache(this, forceNoCache);
         this.Localstorage = new WizdomLocalStorageCache(this.PageView, forceNoCache);
         var timestamps  = new WizdomTimestamps(this, forceNoCache, spHttpClient, absoluteUrl);
         this.Timestamps = timestamps;
