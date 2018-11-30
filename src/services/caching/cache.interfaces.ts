@@ -7,11 +7,11 @@ export interface IWizdomPageViewCache {
 }
 
 export interface IWizdomTimestamps {
-    get(key?: string) : Promise<number>;
-    addMappings(key: string, ...mappings: string[]) : void;
+    Get(key?: string) : Promise<number>;
+    AddMappings(key: string, ...mappings: string[]) : void;
 }
 export interface IWizdomTimestampsResolver {
-    resolve(timestamps: {[key:string]:number}) : void;
+    Resolve(timestamps: {[key:string]:number}) : void;
 }
 export interface IWizdomCache {        
     Localstorage: IWizdomLocalstorageCache;

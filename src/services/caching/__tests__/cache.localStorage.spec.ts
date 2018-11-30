@@ -15,7 +15,7 @@ describe("LocalStorageCache", () => {
     wizdomCache = new WizdomCache(developermode, locationWrapper);
     wizdomCache.resetPage();
     LocalStorageCache = wizdomCache.Localstorage;
-    wizdomCache.Timestamps.get = jest.fn(_ => {
+    wizdomCache.Timestamps.Get = jest.fn(_ => {
       return Promise.resolve(0);
     });
   }
@@ -137,7 +137,7 @@ describe("LocalStorageCache", () => {
     expect(functionMock).toHaveBeenCalledTimes(1); // Still only 1 execution
 
     wizdomCache.resetPage();
-    wizdomCache.Timestamps.get = jest.fn(_ => {
+    wizdomCache.Timestamps.Get = jest.fn(_ => {
       return Promise.resolve(dateToUse.getTime() + 100);
     });
     await LocalStorageCache.ExecuteCached("test timestamp", functionMock, 5000, 9999, 9999);
@@ -153,7 +153,7 @@ describe("LocalStorageCache", () => {
     await LocalStorageCache.ExecuteCached("test timestamp", functionMock, 5000, 9999, 9999);
     expect(functionMock).toHaveBeenCalledTimes(1); // Still only 1 execution
 
-    wizdomCache.Timestamps.get = jest.fn(_ => {
+    wizdomCache.Timestamps.Get = jest.fn(_ => {
       return new Promise(_ => {});
     });
     SetGlobalDateNow(dateToUse.getTime() + 5000);
@@ -191,7 +191,7 @@ describe("LocalStorageCache", () => {
 
     wizdomCache.resetPage();
     SetGlobalDateNow(dateToUse.getTime() + 200);
-    wizdomCache.Timestamps.get = jest.fn(_ => {
+    wizdomCache.Timestamps.Get = jest.fn(_ => {
       return Promise.resolve(dateToUse.getTime() + 5100);
     });
     var promise3 = LocalStorageCache.ExecuteCached("test timestamp", functionMock, 5000, 9999, 9999);

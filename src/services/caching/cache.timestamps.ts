@@ -74,7 +74,7 @@ export class WizdomTimestamps implements IWizdomTimestamps, IWizdomTimestampsRes
    * @param key Key to get timestamp for
    * @returns timestamp as UTC milliseconds since January 1st 1970
    */
-  public get(key?: string): Promise<number> {
+  public Get(key?: string): Promise<number> {
     key = WizdomTimestamps.normaliseKey(key);
     return this.GetTimestampsPromise()
       .then(json => {
@@ -95,7 +95,7 @@ export class WizdomTimestamps implements IWizdomTimestamps, IWizdomTimestampsRes
    * @param key Key for which to add mappings
    * @param maps Alternative timestamp keys which should also match lookup for Key
    */
-  public addMappings(key: string, ...maps: string[]) {
+  public AddMappings(key: string, ...maps: string[]) {
     key = WizdomTimestamps.normaliseKey(key);
     let globalMappings = this.getGlobalMappings();
     globalMappings[key.toLowerCase()] = maps.map(map => WizdomTimestamps.normaliseKey(map));
@@ -104,7 +104,7 @@ export class WizdomTimestamps implements IWizdomTimestamps, IWizdomTimestampsRes
    * Resolve timestamps in another way than by getting Tenant properties
    * @param timestamps The timestamps to resolve with
    */
-  public resolve(timestamps: { [key: string]: number }): void {
+  public Resolve(timestamps: { [key: string]: number }): void {
     this.GetTimestampsPromise(timestamps);
   }
 }

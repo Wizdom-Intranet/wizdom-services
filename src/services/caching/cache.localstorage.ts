@@ -29,7 +29,7 @@ export class WizdomLocalStorageCache implements IWizdomLocalstorageCache {
      */
     async ExecuteCached<T>(key: string, func: Function, expiresInMilliseconds: number, refreshInMilliseconds: number, refreshDelayInMilliseconds: number = 0): Promise<T> {
         var module = key.split('.')[0];
-        var timestampPromise = this.timestamps.get(module);
+        var timestampPromise = this.timestamps.Get(module);
         var cacheObj = this.GetCacheObject(key);
         if (!this.forceNoCache && cacheObj && cacheObj.created && cacheObj.data) {                        
             var now = new Date(Date.now());
