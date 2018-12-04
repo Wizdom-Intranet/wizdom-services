@@ -16,26 +16,35 @@ export interface IWizdomServiceTestWebPartProps {
 }
 
 export default class WizdomServiceTestWebPart extends BaseClientSideWebPart<IWizdomServiceTestWebPartProps> {
-    private wizdomServices: WizdomSpfxServices;
+  private wizdomServices: WizdomSpfxServices;
 
-  public async render(): Promise<void> {
+  protected async onInit(): Promise<void> {
+    this.wizdomServices = new WizdomSpfxServices(this.context);
+    await this.wizdomServices.InitAsync({});
+  }
+
+  public render(): void {
     if(!this.renderedOnce) {
-        // Initialization
-        this.wizdomServices = new WizdomSpfxServices(this.context);
-        await this.wizdomServices.InitAsync({});
-
         // Usage
         var wizdomConfiguration = this.wizdomServices.WizdomConfiguration;
-        var wizdomContext = this.wizdomServices.WizdomContext
-        var wizdomTranslationService = this.wizdomServices.TranslationService;    
+        var wizdomContext = this.wizdomServices.WizdomContext;
+        var wizdomTranslationService = this.wizdomServices.TranslationService;
 
-        this.wizdomServices.WizdomWebApiService.Get("api/wizdom/365/principals/me").then(result => {        
+        this.wizdomServices.WizdomWebApiService.Get("api/wizdom/365/principals/me").then(result => {
             alert("Me: " + JSON.stringify(result));
+        });
+        this.wizdomServices.Cache.Localstorage.ExecuteCached("Test.Date", () => {
+          console.log("Getting new Cached Date");
+          return Promise.resolve(new Date());
+        }, 5 * 60 * 1000, 2 * 60 * 1000, 10* 1000 ).then(cachedDate => {
+          console.log("Cached Date:", cachedDate);
+        });
+        this.wizdomServices.Cache.Timestamps.get("timestampConfiguration").then(timestamp => {
+          console.log("timestampConfiguration", new Date(timestamp));
         });
 
         var createdByText = wizdomTranslationService.translate("Created by") + " Wizdom";
         var notTranslatedText = wizdomTranslationService.translate("Dog Cat Sheep");
-
         this.domElement.innerHTML = `
         <div class="${ styles.wizdomServiceTest }" style="height:500px; overflow:hidden;">
             <div class="${ styles.container }">
@@ -44,22 +53,22 @@ export default class WizdomServiceTestWebPart extends BaseClientSideWebPart<IWiz
                 <span class="${ styles.title }">Wizdom service no framework sample!</span>
                 <p class="${ styles.description }">
                     <b>Wizdom Translation</b><br/>
-                    Translated: ${createdByText} 
-                    <br/>          
-                    Not translated: ${notTranslatedText}                    
-                </p>     
+                    Translated: ${createdByText}
+                    <br/>
+                    Not translated: ${notTranslatedText}
+                </p>
                 <p class="${ styles.description }">
                     <b>Wizdom Context</b><br/>
                     ${JSON.stringify(wizdomContext)}
                 </p>
                 <p class="${ styles.description }">
-                    <b>Wizdom Configuration</b><br/>                
-                    ${JSON.stringify(wizdomConfiguration)}                
-                </p>              
+                    <b>Wizdom Configuration</b><br/>
+                    ${JSON.stringify(wizdomConfiguration)}
+                </p>
                 </div>
             </div>
             </div>
-        </div>`;      
+        </div>`;
     }
   }
 

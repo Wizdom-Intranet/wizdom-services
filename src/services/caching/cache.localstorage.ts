@@ -1,8 +1,8 @@
-import { ICacheObject, IWizdomLocalstorageCache, IWizdomPageViewCache } from "./cache.interfaces";
+import { ICacheObject, IWizdomLocalstorageCache, IWizdomPageViewCache, IWizdomTimestamps } from "./cache.interfaces";
 
 export class WizdomLocalStorageCache implements IWizdomLocalstorageCache {
 
-    constructor(private pageViewCache: IWizdomPageViewCache, private forceNoCache: boolean) {
+    constructor(private pageViewCache: IWizdomPageViewCache, private forceNoCache: boolean, private timestamps: IWizdomTimestamps) {
 
     }
 
@@ -27,40 +27,38 @@ export class WizdomLocalStorageCache implements IWizdomLocalstorageCache {
      * @param refreshDelayInMilliseconds  If the refresh period is expired. The func will be executed delayed by these seconds. Use this to remove load from the first few seconds of a pageload.
      * @returns Promise<T>
      */
-    ExecuteCached<T>(key: string, func: Function, expiresInMilliseconds: number, refreshInMilliseconds: number, refreshDelayInMilliseconds: number = 0): Promise<T> {                
-        var cacheObj = this.GetCacheObject(key);        
+    async ExecuteCached<T>(key: string, func: Function, expiresInMilliseconds: number, refreshInMilliseconds: number, refreshDelayInMilliseconds: number = 0): Promise<T> {
+        var module = key.split('.')[0];
+        var timestampPromise = this.timestamps.Get(module);
+        var cacheObj = this.GetCacheObject(key);
         if (!this.forceNoCache && cacheObj && cacheObj.created && cacheObj.data) {                        
             var now = new Date(Date.now());
             var created = new Date(cacheObj.created);
             var expires = new Date(created.getTime() + expiresInMilliseconds);
-            if (expires > now) {                       
-                var refreshTime = new Date(created.getTime() + refreshInMilliseconds);
-                if (refreshTime < now) {
-                    this.pageViewCache.ExecuteCached(key, () => {
-                        setTimeout(() => {
-                            func().then(result => {
-                                this.SetCacheObject(key, result);
-                            });
-                        }, refreshDelayInMilliseconds);
-                    }, refreshDelayInMilliseconds);
-                }
-    
-                return new Promise((resolve, reject) => {
-                    resolve(cacheObj.data as T);
-                });
+            if (expires <= now
+            || created.getTime() < await timestampPromise) {                   
+                return this.GetPageViewCachedResult<T>(key, func, expiresInMilliseconds, refreshInMilliseconds);
             }
-            else if (expires <= now) {                   
-                return func().then(result => {
-                    this.SetCacheObject(key, result);
-                    return result as T;
-                });
-            }      
+            var refreshTime = new Date(created.getTime() + refreshInMilliseconds);
+            if (refreshTime < now) {
+                this.pageViewCache.ExecuteCached(key+"Refresh", () => {
+                    setTimeout(() => {
+                        this.GetPageViewCachedResult<T>(key, func, expiresInMilliseconds, refreshInMilliseconds);
+                    }, refreshDelayInMilliseconds);
+                }, refreshInMilliseconds);
+            }
+
+            return Promise.resolve(cacheObj.data as T);
         }
-        else {                        
-            return func().then(result => {
-                this.SetCacheObject(key, result);
-                return result as T;
-            });
+        else {
+            return this.GetPageViewCachedResult<T>(key, func, expiresInMilliseconds, refreshInMilliseconds);
         }
+    }
+
+    private GetPageViewCachedResult<T>(key: string, func: Function, expiresInMilliseconds: number, refreshInMilliseconds: number): Promise<T> {
+        return this.pageViewCache.ExecuteCached<Promise<T>>(key, func, Math.min(expiresInMilliseconds, refreshInMilliseconds)).then(result => {
+            this.SetCacheObject(key, result);
+            return result;
+        });
     }
 }
