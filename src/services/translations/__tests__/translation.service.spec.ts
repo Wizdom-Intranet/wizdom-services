@@ -47,6 +47,16 @@ describe("WizdomTranslationService", () => {
         expect('[Translation missing: test]').toEqual(actual);
     });
 
+    it("should return key if it's null, even in developermode", () => {
+        var developermode = {} as IWizdomDeveloperMode;
+        var sut = new WizdomTranslationService({            
+        }, developermode);
+        
+        var actual = sut.translate(null);
+
+        expect(null).toEqual(actual);
+    });
+    
     it("should write error to console for missing translation if developermode configured for it", () => {
         var developermode = {
             errorMissingTranslations: true
