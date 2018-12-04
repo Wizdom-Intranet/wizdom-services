@@ -7,6 +7,9 @@ export class WizdomTranslationService implements IWizdomTranslationService {
     }
 
     translate(key: string): string {        
+        if(key == null || key == undefined || key == "")
+            return key;
+            
         if(this.translations){
             var translation = this.translations[key];            
             if(translation == null) { // Missing translation                
