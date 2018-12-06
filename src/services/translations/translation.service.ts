@@ -10,7 +10,7 @@ export class WizdomTranslationService implements IWizdomTranslationService {
         if(this.translations){
             var translation = this.translations[key];            
             if(translation == null) { // Missing translation                
-                if(this.wizdomdevelopermode) {
+                if(this.wizdomdevelopermode && key) {
                     translation = "[Translation missing: " + key + "]";
                     if(this.wizdomdevelopermode.errorMissingTranslations) {
                         console.error(translation);
