@@ -15,12 +15,12 @@ export class WizdomTranslationServiceFactory {
         var refreshDelayIn = 3 * 1000; // 3 seconds
         
         return this.cache.Localstorage.ExecuteCached("Translations:" + this.context.appUrl + "." + language.toLowerCase(), async () => {
-            var translationUrl = this.context.blobUrl + "Base/Bundles/translations-" + language.toLowerCase() + ".js";
+            var translationUrl = this.context.blobUrl + "Base/Bundles/translations-" + language.toLowerCase() + ".js?timestamp=" + this.cache.Timestamps.Get("Translation");
             
             var result = await this.httpClient.get(translationUrl); // https://www.npmjs.com/package/unfetch
             if (!result.ok) {
                 // fallback to en-us
-                translationUrl = this.context.blobUrl + "Base/Bundles/translations-en-us.js";
+                translationUrl = this.context.blobUrl + "Base/Bundles/translations-en-us.js?timestamp=" + this.cache.Timestamps.Get("Translation");
                 result = await this.httpClient.get(translationUrl);
             }
             var content = await result.text();                    

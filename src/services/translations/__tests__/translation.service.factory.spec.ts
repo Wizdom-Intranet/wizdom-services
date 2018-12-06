@@ -14,9 +14,9 @@ describe("WizdomTranslationServiceFactory", () => {
     var testWizdomContext;       
     beforeEach(() => {
         // mock HttpClient
-        httpClientGetMock = jest.fn(() => {
+        httpClientGetMock = jest.fn((url: string) => {
             return {
-                ok: true,
+                ok: url.indexOf("xx-xx")==-1,
                 text: jest.fn(() => {
                     return new Promise((resolve) => {
                         resolve(TranslationsTestData.CreateTranslationResponse("en-us", 
@@ -40,7 +40,10 @@ describe("WizdomTranslationServiceFactory", () => {
             ExecuteCached: executeCachedMock
         }));
         const CacheMock = jest.fn<IWizdomCache>(() => ({
-            Localstorage: new LocalStorageCacheMock()
+            Localstorage: new LocalStorageCacheMock(),
+            Timestamps: {
+                Get: (key) => "fakeTimeStamp"+key
+            }
         })); 
         testCache = new CacheMock();
 
@@ -84,7 +87,17 @@ describe("WizdomTranslationServiceFactory", () => {
         var sut = new WizdomTranslationServiceFactory(testHttpClient, testWizdomContext, testCache);
         
         await sut.CreateAsync("da-dk");        
+        expect(httpClientGetMock).toHaveBeenCalledTimes(1);
+        expect(httpClientGetMock.mock.calls[0][0]).toBe("https://testbloburl/Base/Bundles/translations-da-dk.js?timestamp=fakeTimeStampTranslation");
+    });   
+    
+    it("should request en-us if current language fails", async () => {
+        testWizdomContext.blobUrl = "https://testbloburl/";        
+        var sut = new WizdomTranslationServiceFactory(testHttpClient, testWizdomContext, testCache);
         
-        expect(httpClientGetMock.mock.calls[0][0]).toBe("https://testbloburl/Base/Bundles/translations-da-dk.js");
+        await sut.CreateAsync("xx-xx");        
+        expect(httpClientGetMock).toHaveBeenCalledTimes(2);
+        expect(httpClientGetMock.mock.calls[0][0]).toBe("https://testbloburl/Base/Bundles/translations-xx-xx.js?timestamp=fakeTimeStampTranslation");
+        expect(httpClientGetMock.mock.calls[1][0]).toBe("https://testbloburl/Base/Bundles/translations-en-us.js?timestamp=fakeTimeStampTranslation");
     });   
 });
