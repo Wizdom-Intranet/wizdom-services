@@ -42,7 +42,7 @@ describe("WizdomTranslationServiceFactory", () => {
         const CacheMock = jest.fn<IWizdomCache>(() => ({
             Localstorage: new LocalStorageCacheMock(),
             Timestamps: {
-                Get: (key) => "fakeTimeStamp"+key
+                Get: (key) => Promise.resolve("fakeTimeStamp"+key)
             }
         })); 
         testCache = new CacheMock();
