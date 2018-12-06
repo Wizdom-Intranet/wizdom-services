@@ -3,7 +3,7 @@ import { IHttpClient, IHttpClientResponse } from "../../../shared/httpclient.wra
 import { IWizdomContext } from "../../context/context.interfaces";
 import { GetWizdomConfiguration } from "../configuration";
 
-describe("WizdomTranslationServiceFactory", () => {
+describe("WizdomConfiguration", () => {
         
     var testHttpClient;
     var httpClientGetMock;
