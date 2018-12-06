@@ -14,7 +14,7 @@ export class WizdomTranslationServiceFactory {
         var refreshIn = 10 * 60 * 1000; // 10 minutes
         var refreshDelayIn = 3 * 1000; // 3 seconds
         
-        return this.cache.Localstorage.ExecuteCached("Translations:" + this.context.appUrl + "." + language.toLowerCase(), async () => {
+        return this.cache.Localstorage.ExecuteCached("Translation:" + this.context.appUrl + "." + language.toLowerCase(), async () => {
             let timestamp = await this.cache.Timestamps.Get("Translation");
             var translationUrl = this.context.blobUrl + "Base/Bundles/translations-" + language.toLowerCase() + ".js?timestamp=" + timestamp;
             

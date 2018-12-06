@@ -79,7 +79,7 @@ describe("WizdomTranslationServiceFactory", () => {
         
         await sut.CreateAsync("da-dk");        
         
-        expect(executeCachedMock.mock.calls[0][0]).toBe("Translations:https://testappurl.da-dk")        
+        expect(executeCachedMock.mock.calls[0][0]).toBe("Translation:https://testappurl.da-dk");
     });
 
     it("should request language specific translationsfile from blob", async () => {
