@@ -203,4 +203,15 @@ describe("LocalStorageCache", () => {
     expect(await promise4).toEqual(44);
     expect(functionMock).toHaveBeenCalledTimes(3); // CacheBursted by still only 3 executions
   });
+  it('should get timestamp for module', async () => {
+    await LocalStorageCache.ExecuteCached("Module.Function", functionMock, 5000, 9999, 9999);
+    expect(wizdomCache.Timestamps.Get).toHaveBeenCalledTimes(1);
+    expect((<any>wizdomCache.Timestamps.Get).mock.calls[0][0]).toEqual("Module")
+    await LocalStorageCache.ExecuteCached("Module.Function:Params", functionMock, 5000, 9999, 9999);
+    expect(wizdomCache.Timestamps.Get).toHaveBeenCalledTimes(2);
+    expect((<any>wizdomCache.Timestamps.Get).mock.calls[1][0]).toEqual("Module")
+    await LocalStorageCache.ExecuteCached("Module:Params", functionMock, 5000, 9999, 9999);
+    expect(wizdomCache.Timestamps.Get).toHaveBeenCalledTimes(3);
+    expect((<any>wizdomCache.Timestamps.Get).mock.calls[2][0]).toEqual("Module")
+  });
 });
