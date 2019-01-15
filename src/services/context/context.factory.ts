@@ -5,7 +5,12 @@ import { IWizdomDeveloperMode } from "../../shared/developermode.interface";
 
 export class WizdomContextFactory {
 
-    private storageEntityContext: IWizdomContext;
+    private storageEntityContext: IWizdomContext = {
+        blobUrl : "",
+        appUrl : "",
+        clientId : "",
+        wizdomdevelopermode : null
+    };
     private allPropertiesContext: IWizdomContext
     constructor(private spHttpClient: IHttpClient, private cache: IWizdomCache, private wizdomdevelopermode: IWizdomDeveloperMode) {
 
@@ -20,14 +25,17 @@ export class WizdomContextFactory {
 
             var storageEntityPromise = this.spHttpClient.get(siteAbsoluteUrl + "/_api/web/GetStorageEntity('wizdom.properties')").then((result) => {
                 return result.json().then((json) => {
-                    var context: IWizdomContext = JSON.parse(json.Value);
-                    // ensure tailing / for app- and bloburl
-                    if (context.blobUrl.substr(-1) != "/")
-                        context.blobUrl = context.blobUrl + "/";
-                    if (context.appUrl.substr(-1) != "/")
-                        context.appUrl = context.appUrl + "/";
-
-                    this.storageEntityContext = context;
+                    if(json.Value)
+                    {
+                        var context: IWizdomContext = JSON.parse(json.Value);
+                        // ensure tailing / for app- and bloburl
+                        if (context.blobUrl.substr(-1) != "/")
+                            context.blobUrl = context.blobUrl + "/";
+                        if (context.appUrl.substr(-1) != "/")
+                            context.appUrl = context.appUrl + "/";
+    
+                        this.storageEntityContext = context;
+                    }
                 });
             });
 
@@ -43,7 +51,6 @@ export class WizdomContextFactory {
                             context.appUrl = context.appUrl + "/";
 
                         this.allPropertiesContext = context;
-                        console.log(this.allPropertiesContext);
                     }
                 });
             });
