@@ -157,3 +157,15 @@ Place Web.config file within the /FileStorage folder. Add the following content 
 
 ## Set no cache through developermode
 Use developermode to change disable cache. `?wizdomdevelopermode={"nocache":true}`
+
+# Context data
+Normally data for the wizdomcontext is stored in the tenantproperty 'wizdom.properties'. 
+But it's also possible to store this data in the web property bag, ex. when hosting multiple wizdominstances in one sharepoint tenant.
+
+To set the context data for a site, use the following powershell, with appropriate values
+```
+$site = Get-PnPTenantSite -Url https://myTenant.sharepoint.com/sites/somesite
+Set-PnPPropertyBagValue -Key "wizdom.properties" -Value '{"appUrl":"https://url.azurewebsites.net/","blobUrl":"https://myblob.blob.core.windows.net/wizdom365public/","clientId":"60e014c8-a71c-4a56-866c-36631a87a3cf"}'
+$site.Update()
+$site.Context.ExecuteQuery()
+```
