@@ -1,6 +1,7 @@
 import { IWizdomCache, IWizdomLocalstorageCache } from "../../caching/cache.interfaces";
 import { IHttpClient, IHttpClientResponse } from "../../../shared/httpclient.wrappers/http.interfaces";
 import { WizdomContextFactory } from "../context.factory";
+import { IWizdomDeveloperMode } from "../../../shared/developermode.interface";
 describe("WizdomContext", () => {
 
     function getCacheMock(){
@@ -118,5 +119,37 @@ describe("WizdomContext", () => {
         expect(context.blobUrl).toEqual("http://blob/site/");
         expect(context.appUrl).toEqual("http://app/site/");
         expect(context.clientId).toEqual("client-id-tenant");
+    });
+
+    it("should be possible to overwrite tenant and site properties with developermode", async () => {
+        var mockData = { 
+            tenantProperties:{ 
+                Value : JSON.stringify({
+                    blobUrl : "http://blob/tenant/",
+                    appUrl : "http://app/tenant/",
+                    clientId : "client-id-tenant"
+                })
+            },
+            siteProperties:{
+                wizdom_x002e_properties : JSON.stringify({
+                    blobUrl : "http://blob/site/",
+                    appUrl : "http://app/site/",
+                    clientId : "client-id-site"
+                })
+            }
+        };
+        var developerMode = { 
+            wizdomContext: {
+                blobUrl : "http://blob/developermode/",
+                appUrl : "http://app/developermode/",
+                clientId : "client-id-developermode"
+            }
+        } as IWizdomDeveloperMode;
+
+        var sut = new WizdomContextFactory(getSpHttpClient(mockData), getCacheMock(), developerMode);
+        var context = await sut.GetWizdomContextAsync("http://sharepoint.site/absolute/url/");
+        expect(context.blobUrl).toEqual("http://blob/developermode/");
+        expect(context.appUrl).toEqual("http://app/developermode/");
+        expect(context.clientId).toEqual("client-id-developermode");
     });
 });
