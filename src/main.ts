@@ -1,5 +1,6 @@
 export { WizdomSpfxServices } from "./services/wizdom.spfx.service";
 export { WizdomSpfxVueServices } from "./services/wizdom.spfx.vue.service";
+export { ConfigurationParser } from "./services/configuration/configurationParser";
 export { IWizdomCache, IWizdomLocalstorageCache, IWizdomPageViewCache } from "./services/caching/cache.interfaces";
 export { IWizdomContext } from "./services/context/context.interfaces";
 export { IWizdomWebApiService } from "./services/webapi/webapi.interfaces";

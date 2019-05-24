@@ -64,4 +64,5 @@ describe("WizdomConfiguration", () => {
         expect(httpClientGetMock).toHaveBeenCalledTimes(1);
         expect(httpClientGetMock.mock.calls[0][0]).toBe("https://testbloburl/Base/Bundles/configuration.js?timestamp=fakeTimeStampConfiguration");
     });   
+
 });
