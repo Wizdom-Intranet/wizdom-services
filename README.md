@@ -58,6 +58,15 @@ Show missing translations
 `wizdomdevelopermode=true`
 ## Configuration
 An object matching the content of configuration.js from AddIn classic.
+
+### ConfigurationParser
+Use ConfigurationParser to get module specific configuration.\
+The ConfigurationParser will handle multiple configuration entries (@configFilters) per module.
+```typescript
+var configurationParser = new ConfigurationParser(wizdomServices.WizdomConfiguration);
+var moduleConfiguration = configurationParser.GetModuleConfiguration("Megamenu");
+```
+
 ## Cache
 ```typescript
 export interface IWizdomCache {
