@@ -178,4 +178,11 @@ describe("WizdomConfiguration", () => {
             "Value": "RegexMatch"     
         });
     });
+
+    it("should return module configuration as null for undefined module", async () => {
+        var configuration = await executeConfigurationRequest();
+        
+        var moduleConfiguration = configuration["NotExistingModule"];
+        expect(moduleConfiguration).toBeUndefined();
+    });
 });

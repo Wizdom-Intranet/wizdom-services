@@ -20,28 +20,27 @@ export default class WizdomServiceTestWebPart extends BaseClientSideWebPart<IWiz
 
   protected async onInit(): Promise<void> {
     this.wizdomServices = new WizdomSpfxServices(this.context);
-    await this.wizdomServices.InitAsync({});
+    await this.wizdomServices.InitAsync({});    
   }
 
-  public render(): void {
+  public async render(): Promise<void> {    
     if(!this.renderedOnce) {
-        // Usage
+        // Usage        
         var wizdomConfiguration = this.wizdomServices.WizdomConfiguration;
         var wizdomContext = this.wizdomServices.WizdomContext;
         var wizdomTranslationService = this.wizdomServices.TranslationService;
 
-        this.wizdomServices.WizdomWebApiService.Get("api/wizdom/365/principals/me").then(result => {
-            alert("Me: " + JSON.stringify(result));
-        });
         this.wizdomServices.Cache.Localstorage.ExecuteCached("Test.Date", () => {
           console.log("Getting new Cached Date");
           return Promise.resolve(new Date());
         }, 5 * 60 * 1000, 2 * 60 * 1000, 10* 1000 ).then(cachedDate => {
           console.log("Cached Date:", cachedDate);
         });
-        this.wizdomServices.Cache.Timestamps.get("timestampConfiguration").then(timestamp => {
+        this.wizdomServices.Cache.Timestamps.Get("timestampConfiguration").then(timestamp => {
           console.log("timestampConfiguration", new Date(timestamp));
         });
+
+        var me = await this.wizdomServices.WizdomWebApiService.Get("api/wizdom/365/principals/me");
 
         var createdByText = wizdomTranslationService.translate("Created by") + " Wizdom";
         var notTranslatedText = wizdomTranslationService.translate("Dog Cat Sheep");
@@ -62,8 +61,12 @@ export default class WizdomServiceTestWebPart extends BaseClientSideWebPart<IWiz
                     ${JSON.stringify(wizdomContext)}
                 </p>
                 <p class="${ styles.description }">
-                    <b>Wizdom Configuration</b><br/>
-                    ${JSON.stringify(wizdomConfiguration)}
+                    <b>Wizdom ApiService Me Request</b><br/>
+                    ${JSON.stringify(me)}
+                </p>
+                <p class="${ styles.description }">
+                    <b>Wizdom Configuration</b><br/>                    
+                    ${JSON.stringify(wizdomConfiguration)}                    
                 </p>
                 </div>
             </div>

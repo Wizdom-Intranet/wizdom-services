@@ -7,7 +7,7 @@ export class ConfigurationParser {
     public TransformModuleConfigurationToASingleObject(module) : any {        
         var moduleConfigurationObjectOrArray = this.Configuration[module];
         var result = moduleConfigurationObjectOrArray
-        if(typeof(moduleConfigurationObjectOrArray) === "object") {
+        if(moduleConfigurationObjectOrArray && typeof(moduleConfigurationObjectOrArray) === "object") {
             if (moduleConfigurationObjectOrArray.length > 1) {
                 result = moduleConfigurationObjectOrArray;
                 var longestUrlLength = -1;
@@ -27,7 +27,7 @@ export class ConfigurationParser {
             }
             else {
                 result = moduleConfigurationObjectOrArray;
-            }       
+            }
         }
         return result;
     }
