@@ -59,13 +59,8 @@ Show missing translations
 ## Configuration
 An object matching the content of configuration.js from AddIn classic.
 
-### ConfigurationParser
-Use ConfigurationParser to get module specific configuration.\
-The ConfigurationParser will handle multiple configuration entries (@configFilters) per module.
-```typescript
-var configurationParser = new ConfigurationParser(wizdomServices.WizdomConfiguration);
-var moduleConfiguration = configurationParser.GetModuleConfiguration("Megamenu");
-```
+Only the most relevant configFilter will be part of the configuration object.\
+Examle: The Megamenu can have configurations specific to multiple url's. But only the one relevant to current pageview will be returned as part of the configuration object.
 
 ## Cache
 ```typescript

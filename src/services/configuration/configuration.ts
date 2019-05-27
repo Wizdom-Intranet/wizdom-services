@@ -1,9 +1,7 @@
 import { IWizdomContext } from "../context/context.interfaces";
 import { IWizdomCache } from "../caching/cache.interfaces";
+import { ConfigurationParser } from "./configurationParser";
 
-/*
-This module is still up for rework into an actual class with tests
-*/
 export async function GetWizdomConfiguration(httpClient : any, context : IWizdomContext, cache: IWizdomCache) : Promise<object>{    
     var expireIn = 7 * 24 * 60 * 60 * 1000; // 7 days
     var refreshIn = 10 * 60 * 1000; // 10 minutes
@@ -17,7 +15,13 @@ export async function GetWizdomConfiguration(httpClient : any, context : IWizdom
                 return JSON.parse(content);
             });
         });
-      }, expireIn, refreshIn, refreshDelayIn).then((configuration) => {
+      }, expireIn, refreshIn, refreshDelayIn).then((configuration) => {          
+        // Ensuring all module configurations consist of only one object
+        var configurationParser = new ConfigurationParser(configuration);
+        Object.keys(configuration).forEach(moduleKey => {
+            configuration[moduleKey] = configurationParser.TransformModuleConfigurationToASingleObject(moduleKey);
+        });        
+
         // Store a global variable
         window["WizdomConfiguration"] = configuration;
         return configuration;
