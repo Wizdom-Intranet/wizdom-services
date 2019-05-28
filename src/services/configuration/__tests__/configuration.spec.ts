@@ -11,16 +11,16 @@ describe("WizdomConfiguration", () => {
     var testWizdomContext; 
 
     // mock Caching
-    testCache = jest.fn<IWizdomCache>(() => ({
-        Localstorage: jest.fn<IWizdomLocalstorageCache>(() => ({            
+    testCache = jest.fn(() => ({
+        Localstorage: jest.fn(() => ({            
             ExecuteCached: jest.fn((key: string, func: Function) => {
                 return func();
             })
-        }))(),
+        }) as IWizdomLocalstorageCache)(),
         Timestamps: {
-            Get: (key) => Promise.resolve("fakeTimeStamp"+key)
+            Get: (key) => Promise.resolve(42)
         }
-    }))();
+    }) as IWizdomCache)();
 
     var setTestConfiguration = (configuration: object) => {        
         // mock HttpClient
@@ -31,9 +31,9 @@ describe("WizdomConfiguration", () => {
                 json: jest.fn()
             } as IHttpClientResponse);
         });
-        testHttpClient = jest.fn<IHttpClient>(() => ({
+        testHttpClient = jest.fn(() => ({
             get: httpClientGetMock            
-        }))();
+        }) as IHttpClient)();
     };
 
     var setWindowLocationHref = (url:string) => {
@@ -98,7 +98,7 @@ describe("WizdomConfiguration", () => {
         await executeConfigurationRequest();
 
         expect(httpClientGetMock).toHaveBeenCalledTimes(1);
-        expect(httpClientGetMock.mock.calls[0][0]).toBe("https://testbloburl/Base/Bundles/configuration.js?timestamp=fakeTimeStampConfiguration");
+        expect(httpClientGetMock.mock.calls[0][0]).toBe("https://testbloburl/Base/Bundles/configuration.js?timestamp=42");
     });   
 
     it("should return configuration as object with no Wizdom365Config or Wizdom365AppUrl variables", async () => {            

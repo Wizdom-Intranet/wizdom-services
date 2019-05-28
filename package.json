@@ -15,27 +15,27 @@
     "author": "Wizdom A/S",
     "license": "MIT",
     "dependencies": {
-        "@microsoft/sp-http": "~1.5.0",
-        "@microsoft/sp-application-base": "~1.5.0",
-        "@microsoft/sp-webpart-base": "~1.5.0",
-        "@microsoft/sp-core-library": "~1.5.0",
-        "@microsoft/sp-extension-base": "~1.5.0",
-        "es6-promise": "4.2.4"
+        "@microsoft/sp-application-base": "^1.8.2",
+        "@microsoft/sp-core-library": "^1.8.2",
+        "@microsoft/sp-extension-base": "^1.8.2",
+        "@microsoft/sp-http": "^1.8.2",
+        "@microsoft/sp-webpart-base": "^1.8.2",
+        "es6-promise": "^4.2.6"
     },
     "devDependencies": {
-        "@types/chai": ">=3.4.34 <3.6.0",
-        "@types/jest": "^23.1.4",
-        "@types/mocha": ">=2.2.33 <2.6.0",
-        "jest": "^23.1.4",
+        "@types/chai": "^4.1.7",
+        "@types/jest": "^24.0.13",
+        "@types/mocha": "^5.2.6",
+        "jest": "^24.8.0",
         "jest-serializer-vue": "^2.0.2",
-        "jest-transform-stub": "^1.0.0",
+        "jest-transform-stub": "^2.0.0",
         "rollup": "^0.50.0",
-        "rollup-plugin-cpy": "^1.0.0",
+        "rollup-plugin-cpy": "^1.1.0",
         "rollup-plugin-generate-package-json": "^2.0.1",
         "rollup-plugin-sourcemaps": "^0.4.2",
         "rollup-plugin-typescript2": "^0.8.1",
-        "typescript": "^2.8.3",
-        "ts-jest": "^22.4.6",
-        "vue-jest": "^2.6.0"
+        "ts-jest": "^24.0.2",
+        "typescript": "^3.4.5",
+        "vue-jest": "^3.0.4"
     }
 }
