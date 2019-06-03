@@ -46,7 +46,7 @@ describe("WizdomConfiguration", () => {
     }
 
     var executeConfigurationRequest = async () => {
-        return await GetWizdomConfiguration(testHttpClient, testWizdomContext, testCache)
+        return await GetWizdomConfiguration(testHttpClient, testWizdomContext, testCache, ["TestModule", "TestModuleWithOneConfigFilters", "TestModuleWithMultipleConfigFilters"]);
     };
 
     beforeEach(() => {    
@@ -87,6 +87,15 @@ describe("WizdomConfiguration", () => {
                 {
                     "@configFilter": "wizdom.+siteregex",
                     "Value": "RegexMatch"
+                }
+            ],
+            "TestModuleNotWhitelistedToBeParsed": [
+                {
+                    "Value": "NotParsed1"
+                },
+                {
+                    "@configFilter": "NotParedUrl",
+                    "Value": "NotParsed2"
                 }
             ],
         }); 
@@ -184,5 +193,20 @@ describe("WizdomConfiguration", () => {
         
         var moduleConfiguration = configuration["NotExistingModule"];
         expect(moduleConfiguration).toBeUndefined();
+    });
+
+    it("should not parse a module that is not whitelisted allowing module arrays", async () => {
+        var configuration = await executeConfigurationRequest();
+        
+        var moduleConfiguration = configuration["TestModuleNotWhitelistedToBeParsed"];        
+        expect(moduleConfiguration).toEqual([
+            {
+                "Value": "NotParsed1"
+            },
+            {
+                "@configFilter": "NotParedUrl",
+                "Value": "NotParsed2"
+            }
+        ]);
     });
 });

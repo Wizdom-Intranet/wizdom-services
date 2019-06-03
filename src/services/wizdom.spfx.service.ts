@@ -58,7 +58,8 @@ export class WizdomSpfxServices {
                 this.TranslationService = translationService; 
             });
 
-            var configurationPromise = GetWizdomConfiguration(new SpfxHttpClient(this.spContext.httpClient), this.WizdomContext, this.Cache).then(configuration => {
+            var specificConfigurationParsingModules: ["Megamenu", "CssGenerator", "Footer", "MarkAsRead", "Powerpanel", "CustomStyling", "CustomJs", "ModernCustomStyling", "ModernCustomJs"];
+            var configurationPromise = GetWizdomConfiguration(new SpfxHttpClient(this.spContext.httpClient), this.WizdomContext, this.Cache, specificConfigurationParsingModules).then(configuration => {
                 this.WizdomConfiguration = configuration;
             });
 
