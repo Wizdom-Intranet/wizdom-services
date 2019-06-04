@@ -26,9 +26,9 @@ export class WizdomSpfxServices {
         this.spContext = spContext;
     }
 
-    public async InitAsync(options: any) : Promise<void> {  
+    public async InitAsync(options: any) {  
         if(console.info != null)
-            console.info("wizdom-intranet/services initializing");
+            console.info("initializing wizdom-intranet/services");
         
         try {
             // Check for development mode            
@@ -58,7 +58,8 @@ export class WizdomSpfxServices {
                 this.TranslationService = translationService; 
             });
 
-            var configurationPromise = GetWizdomConfiguration(new SpfxHttpClient(this.spContext.httpClient), this.WizdomContext, this.Cache).then(configuration => {
+            var specificConfigurationParsingModules: ["Megamenu", "CssGenerator", "Footer", "MarkAsRead", "Powerpanel", "CustomStyling", "CustomJs", "ModernCustomStyling", "ModernCustomJs"];
+            var configurationPromise = GetWizdomConfiguration(new SpfxHttpClient(this.spContext.httpClient), this.WizdomContext, this.Cache, specificConfigurationParsingModules).then(configuration => {
                 this.WizdomConfiguration = configuration;
             });
 
@@ -66,13 +67,13 @@ export class WizdomSpfxServices {
             this.WizdomCorsProxyService = wizdomCorsProxyServiceFactory.GetOrCreate();                        
             var wizdomWebApiServiceFactory = new WizdomWebApiServiceFactory(wizdomCorsProxyServiceFactory, this.spContext.pageContext.site.absoluteUrl);
             this.WizdomWebApiService = wizdomWebApiServiceFactory.Create();
+            
+            await Promise.all([translationServicePromise, configurationPromise]);
 
-            await Promise.all([translationServicePromise, configurationPromise]);                       
-
-            console.info("wizdom-intranet/services initialized");
+            console.info("wizdom-intranet/services initialized");            
         } catch(ex) {
             if(console.exception != null)
                 console.exception("wizdom-intranet/services initializing error", ex);
-        }          
+        }        
     }
 }

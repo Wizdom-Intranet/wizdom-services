@@ -58,6 +58,10 @@ Show missing translations
 `wizdomdevelopermode=true`
 ## Configuration
 An object matching the content of configuration.js from AddIn classic.
+
+Only the most relevant configFilter will be part of the configuration object.\
+Examle: The Megamenu can have configurations specific to multiple url's. But only the one relevant to current pageview will be returned as part of the configuration object.
+
 ## Cache
 ```typescript
 export interface IWizdomCache {

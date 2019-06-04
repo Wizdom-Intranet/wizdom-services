@@ -27,24 +27,24 @@ describe("WizdomTranslationServiceFactory", () => {
                 json: jest.fn()
             } as IHttpClientResponse;
         });
-        const HttpClientMockImplementation = jest.fn<IHttpClient>(() => ({
+        const HttpClientMockImplementation = jest.fn(() => ({
             get: httpClientGetMock            
-        }));
+        }) as IHttpClient);
         testHttpClient = new HttpClientMockImplementation();
 
         // mock Caching
         executeCachedMock = jest.fn((key: string, func: Function) => {
             return func();
         })
-        const LocalStorageCacheMock = jest.fn<IWizdomLocalstorageCache>(() => ({            
+        const LocalStorageCacheMock = jest.fn(() => ({            
             ExecuteCached: executeCachedMock
-        }));
-        const CacheMock = jest.fn<IWizdomCache>(() => ({
+        }) as IWizdomLocalstorageCache);
+        const CacheMock = jest.fn(() => ({
             Localstorage: new LocalStorageCacheMock(),
             Timestamps: {
-                Get: (key) => Promise.resolve("fakeTimeStamp"+key)
+                Get: (key) => Promise.resolve(42)
             }
-        })); 
+        }) as IWizdomCache); 
         testCache = new CacheMock();
 
         // mock Context
@@ -88,7 +88,7 @@ describe("WizdomTranslationServiceFactory", () => {
         
         await sut.CreateAsync("da-dk");        
         expect(httpClientGetMock).toHaveBeenCalledTimes(1);
-        expect(httpClientGetMock.mock.calls[0][0]).toBe("https://testbloburl/Base/Bundles/translations-da-dk.js?timestamp=fakeTimeStampTranslation");
+        expect(httpClientGetMock.mock.calls[0][0]).toBe("https://testbloburl/Base/Bundles/translations-da-dk.js?timestamp=42");
     });   
     
     it("should request en-us if current language fails", async () => {
@@ -97,7 +97,7 @@ describe("WizdomTranslationServiceFactory", () => {
         
         await sut.CreateAsync("xx-xx");        
         expect(httpClientGetMock).toHaveBeenCalledTimes(2);
-        expect(httpClientGetMock.mock.calls[0][0]).toBe("https://testbloburl/Base/Bundles/translations-xx-xx.js?timestamp=fakeTimeStampTranslation");
-        expect(httpClientGetMock.mock.calls[1][0]).toBe("https://testbloburl/Base/Bundles/translations-en-us.js?timestamp=fakeTimeStampTranslation");
+        expect(httpClientGetMock.mock.calls[0][0]).toBe("https://testbloburl/Base/Bundles/translations-xx-xx.js?timestamp=42");
+        expect(httpClientGetMock.mock.calls[1][0]).toBe("https://testbloburl/Base/Bundles/translations-en-us.js?timestamp=42");
     });   
 });

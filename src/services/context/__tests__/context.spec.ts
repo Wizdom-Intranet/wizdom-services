@@ -2,21 +2,22 @@ import { IWizdomCache, IWizdomLocalstorageCache } from "../../caching/cache.inte
 import { IHttpClient, IHttpClientResponse } from "../../../shared/httpclient.wrappers/http.interfaces";
 import { WizdomContextFactory } from "../context.factory";
 import { IWizdomDeveloperMode } from "../../../shared/developermode.interface";
+import { RandomNumberGenerator } from "@microsoft/sp-core-library";
 describe("WizdomContext", () => {
 
     function getCacheMock(){
         var executeCachedMock = jest.fn((key: string, func: Function) => {
             return func();
         })
-        const LocalStorageCacheMock = jest.fn<IWizdomLocalstorageCache>(() => ({            
+        const LocalStorageCacheMock = jest.fn(() => ({            
             ExecuteCached: executeCachedMock
-        }));
-        const CacheMock = jest.fn<IWizdomCache>(() => ({
+        }) as IWizdomLocalstorageCache);
+        const CacheMock = jest.fn(() => ({
             Localstorage: new LocalStorageCacheMock(),
             Timestamps: {
-                Get: (key) => Promise.resolve("fakeTimeStamp"+key)
+                Get: (key) => Promise.resolve(42)
             }
-        })); 
+        }) as IWizdomCache); 
         return new CacheMock();
     }
     function getSpHttpClient(mockData){
@@ -33,7 +34,7 @@ describe("WizdomContext", () => {
                 },
             } as IHttpClientResponse);
         };
-        const HttpClientMockImplementation = jest.fn<IHttpClient>(() => ({
+        const HttpClientMockImplementation = jest.fn<IHttpClient, any>(() => ({
             get: httpClientGetMock            
         }));
         return new HttpClientMockImplementation();
