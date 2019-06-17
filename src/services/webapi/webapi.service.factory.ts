@@ -1,14 +1,14 @@
 import { IWizdomContext } from "../context/context.interfaces";
 import { IWizdomWebApiService, IWizdomWebApiServiceState } from "./webapi.interfaces";
 import { WizdomWebApiService } from "./webapi.service";
-import { WizdomCorsProxyServiceFactory } from "../corsproxy/corsproxy.service.factory";
+import { IWizdomCorsProxyServiceFactory } from "../corsproxy/corsproxy.interfaces";
 
 export class WizdomWebApiServiceFactory {
-    constructor(private corsProxyFactory: WizdomCorsProxyServiceFactory, private spHostUrl: string) {                
+    constructor(private corsProxyFactory: IWizdomCorsProxyServiceFactory, private spHostUrl: string) {                
     }
 
-    Create() : IWizdomWebApiService {                
-        return new WizdomWebApiService(this.spHostUrl, this.getWebApiSharedState(), this.corsProxyFactory);
+    Create() : IWizdomWebApiService {                        
+        return window["WizdomWebApiService"] = new WizdomWebApiService(this.spHostUrl, this.getWebApiSharedState(), this.corsProxyFactory);
     }
 
     private getWebApiSharedState() {
