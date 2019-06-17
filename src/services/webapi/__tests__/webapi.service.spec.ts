@@ -1,6 +1,6 @@
 import { WizdomWebApiService } from "../webapi.service";
 import { IWizdomWebApiServiceState, IWizdomWebApiService } from "../webapi.interfaces";
-import { IWizdomCorsProxyIframe, IWizdomCorsProxyService, IWizdomCorsProxySharedState } from "../../corsproxy/corsproxy.interfaces"
+import { IWizdomCorsProxyService, IWizdomCorsProxySharedState, IWizdomCorsProxyServiceFactory } from "../../corsproxy/corsproxy.interfaces"
 
 describe("WizdomWebApiService", () => {
     // Mock console
@@ -35,7 +35,8 @@ describe("WizdomWebApiService", () => {
     });
 
     function setupWizdomWebApiService(): IWizdomWebApiService {
-        return new WizdomWebApiService("http://sharepointHostUrl.com", state, {GetOrCreate(){return corsProxy}});
+        var fakeCorsProxyFactory = { GetOrCreate(){ return corsProxy; } } as IWizdomCorsProxyServiceFactory;
+        return new WizdomWebApiService("http://sharepointHostUrl.com", state, fakeCorsProxyFactory);
     }
 
     it("should handle path releative api url", () => {  
