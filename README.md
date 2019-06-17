@@ -124,6 +124,12 @@ export interface IWizdomWebApiService {
 }
 ```
 
+### Calling from custom javascript
+WizdomWebApiService are exposed globally on the window object when a Wizdom webpart or extension are loaded on the page. Use the Get, Delete, Post and Put method to call the Wizdom backend.
+```javascript
+window.WizdomWebApiService.Get("api/Wizdom/StructuredContent/v1/personal/...").then((response) => { console.log("content", response); });
+```
+
 # Developermode
 Add the querystring
 ?wizdomdevelopermode=
