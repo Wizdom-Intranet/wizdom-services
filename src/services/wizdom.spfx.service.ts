@@ -26,7 +26,7 @@ export class WizdomSpfxServices {
         this.spContext = spContext;
     }
 
-    public async InitAsync(options: any) {  
+    public async InitAsync(options: any) {          
         if(console.info != null)
             console.info("initializing wizdom-intranet/services");
         
@@ -58,7 +58,7 @@ export class WizdomSpfxServices {
                 this.TranslationService = translationService; 
             });
 
-            var specificConfigurationParsingModules: ["Megamenu", "CssGenerator", "Footer", "MarkAsRead", "Powerpanel", "CustomStyling", "CustomJs", "ModernCustomStyling", "ModernCustomJs"];
+            var specificConfigurationParsingModules = ["Megamenu", "CssGenerator", "Footer", "MarkAsRead", "Powerpanel", "CustomStyling", "CustomJs", "ModernCustomStyling", "ModernCustomJs"];
             var configurationPromise = GetWizdomConfiguration(new SpfxHttpClient(this.spContext.httpClient), this.WizdomContext, this.Cache, specificConfigurationParsingModules).then(configuration => {
                 this.WizdomConfiguration = configuration;
             });
@@ -73,7 +73,7 @@ export class WizdomSpfxServices {
             console.info("wizdom-intranet/services initialized");            
         } catch(ex) {
             if(console.exception != null)
-                console.exception("wizdom-intranet/services initializing error", ex);
-        }        
+                console.exception("wizdom-intranet/services initializing error", ex);            
+        }                   
     }
 }
