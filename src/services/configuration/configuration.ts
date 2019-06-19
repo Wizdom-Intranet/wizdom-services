@@ -2,7 +2,7 @@ import { IWizdomContext } from "../context/context.interfaces";
 import { IWizdomCache } from "../caching/cache.interfaces";
 import { ConfigurationParser } from "./configurationParser";
 
-export async function GetWizdomConfiguration(httpClient : any, context : IWizdomContext, cache: IWizdomCache, whiteListedModulesToParse: string[]) : Promise<object>{    
+export async function GetWizdomConfiguration(httpClient : any, context : IWizdomContext, cache: IWizdomCache, whiteListedModulesToParse: string[]) : Promise<object>{        
     var expireIn = 7 * 24 * 60 * 60 * 1000; // 7 days
     var refreshIn = 10 * 60 * 1000; // 10 minutes
     var refreshDelayIn = 3 * 1000; // 3 seconds
@@ -15,7 +15,7 @@ export async function GetWizdomConfiguration(httpClient : any, context : IWizdom
                 return JSON.parse(content);
             });
         });
-      }, expireIn, refreshIn, refreshDelayIn).then((configuration) => {          
+    }, expireIn, refreshIn, refreshDelayIn).then((configuration:any) => {          
         // Ensuring all module configurations consist of only one object        
         var configurationParser = new ConfigurationParser(configuration);
         Object.keys(configuration).forEach(moduleKey => {
@@ -27,5 +27,5 @@ export async function GetWizdomConfiguration(httpClient : any, context : IWizdom
         // Store a global variable
         window["WizdomConfiguration"] = configuration;
         return configuration;
-      });
+    });    
 }
