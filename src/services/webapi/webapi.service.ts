@@ -1,4 +1,4 @@
-import { IWizdomWebApiService, IWizdomWebApiServiceState } from "./webapi.interfaces";
+import { IWizdomWebApiService, IWizdomWebApiServiceState, WebApiErrorType } from "./webapi.interfaces";
 import { IWizdomCorsProxyServiceFactory, IWizdomCorsProxyService } from "../corsproxy/corsproxy.interfaces";
 
 // max 60 requests/min
@@ -7,11 +7,13 @@ const requestRateLimitTimeout = 5*60*1000;
 
 export class WizdomWebApiService implements IWizdomWebApiService {    
     private corsProxy : IWizdomCorsProxyService;
+    public corsProxyFailed: boolean;
 
     constructor(private spHostUrl: string, private state: IWizdomWebApiServiceState, private corsProxyFac: IWizdomCorsProxyServiceFactory) {  
         this.corsProxy = this.corsProxyFac.GetOrCreate(false);
         if(this.state.corsProxyReady == null) // null = unknown/initial state
             this.initCorsProxyMessageHandling();        
+        this.corsProxyFailed = this.corsProxy.corsProxyState.corsProxyFailed;
     }
     private initCorsProxyMessageHandling() {
         this.state.corsProxyReady = false; // false = "creating"        
@@ -27,7 +29,7 @@ export class WizdomWebApiService implements IWizdomWebApiService {
             this.state.requestQueue[message.requestIndex] = null; // cleanup
         });
         this.corsProxy.AddHandler("RequestFailed", (message) => {
-            this.state.requestQueue[message.requestIndex].fail(message.result);
+            this.state.requestQueue[message.requestIndex].fail({errorType: WebApiErrorType.RequestFailed, message: message.result});
             this.state.requestQueue[message.requestIndex] = null; // cleanup
         });
         this.corsProxy.AddHandler("TokenExpired", (message) => {
@@ -60,12 +62,13 @@ export class WizdomWebApiService implements IWizdomWebApiService {
         });
     }
 
-    public makeRequest(url: string, success: Function, fail: Function, method: string, data: any): void {                 
-        if (!this.state.corsProxyReady) { // corsproxy not ready yet. Queue up the requests
+    public makeRequest(url: string, success: Function, fail: Function, method: string, data: any): void {               
+        this.corsProxyFailed = this.corsProxy.corsProxyState.corsProxyFailed;  
+        if (!this.state.corsProxyReady && !this.corsProxyFailed) { // corsproxy not ready yet. Queue up the requests
             console.info("Queued request to: " + url);
             this.state.deferredQueue.push([url, success, fail, method, data]);
         }
-        else {
+        else if(!this.corsProxyFailed) {
             console.info("Sending request to: " + url);
             var fullUrl = url + (url.indexOf("?") > 0 ? "&" : "?");
             fullUrl += "SPHostUrl=" + this.spHostUrl;
@@ -94,9 +97,13 @@ export class WizdomWebApiService implements IWizdomWebApiService {
             else
             {
                 console.error("Corsproxy request ratelimit exceeded. More than " + requestRateLimitCount + " was made over a period of " + (requestRateLimitTimeout/1000) + " seconds");
-                fail("Corsproxy request ratelimit exceeded");
+                fail({errorType: WebApiErrorType.RateLimitExeeded, message: "Corsproxy request ratelimit exceeded"});
             }
 
+        }
+        else {
+            console.error("Corsproxy failed to initialize");
+            fail({errorType: WebApiErrorType.CorsProxyFailed , message: "Corsproxy failed initilisation"});
         }
     }
 

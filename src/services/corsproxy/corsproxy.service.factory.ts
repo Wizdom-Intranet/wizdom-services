@@ -16,19 +16,28 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
         return this.frameService;
     }
 
-    private endsWith(str, suffix) : boolean {
+    private endsWith(str: string | any[], suffix: string | any[]) : boolean {
         // using this endswith method to support IE
-        return str.indexOf(suffix, str.length - suffix.length) !== -1;
+        return str.indexOf((suffix as any), str.length - suffix.length) !== -1;
     }
 
     private getOrCreateIFrame(recreate: boolean = false) : IWizdomCorsProxyIframe {     
         if(window["WizdomCorsProxy"] == null || recreate) {
-            console.time("corsproxy ready"); // start timer for corsproxy
             var corsProxyIframe = document.createElement("iframe");
             corsProxyIframe.style.display = "none";
             
             var appUrl = this.endsWith(this.context.appUrl, "/") ? this.context.appUrl : this.context.appUrl + "/";
             corsProxyIframe.src = this.spHostUrl + "/_layouts/15/appredirect.aspx?client_id=" + this.context.clientId + "&redirect_uri=" + appUrl + "Base/WizdomCorsProxy.aspx?{StandardTokens}" + "%26isModern=true%26userLoginName=" + encodeURIComponent(this.userLoginName);            
+
+            corsProxyIframe.onload = (ev: Event) => {
+                if(!window["WizdomCorsProxyState"].session) {
+                    // If the frame finished loading but the state hasn't been set it's probably stuck on an error page
+                    window["WizdomCorsProxyState"].corsProxyFailed = true;
+                }
+            }
+            corsProxyIframe.onerror = (ev: Event) => {
+                    window["WizdomCorsProxyState"].corsProxyFailed = true;
+            }
 
             document.body.appendChild(corsProxyIframe);
        
@@ -44,15 +53,12 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
             window["attachEvent"]('onmessage', this.postMessageHandler.bind(this));
     }
     
-    private postMessageHandler(e) {        
+    private postMessageHandler(e: { data: string; }) {        
         try {            
             var message = JSON.parse(e.data);
             if (!message.command)
                 return;
-            
-            this.frameService.HandleMessage(message);
             if (message.command === "WizdomCorsProxySuccess") {
-                console.timeEnd("corsproxy ready");
 
                 window["WizdomCorsProxyState"].session = message.session;
                 window["WizdomCorsProxyState"].msLeftOnToken = message.msLeftOnToken;
@@ -61,8 +67,12 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
                 window["WizdomCorsProxyState"].upgradeInProgress = message.upgradeInProgress;
 
             } else if (message.command === "WizdomCorsProxyFailed") {
+                window["WizdomCorsProxyState"].corsProxyFailed = true;
                 alert("WizdomCorsProxyFailed");
-            } 
+            }
+            
+            this.frameService.HandleMessage(message);
+
         } catch (ex) {
             //console.log("wizdom postmessage error", e.data, ex);
         }
@@ -74,7 +84,8 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
             msLeftOnToken: 0, 
             allWizdomRoles: [], 
             rolesForCurrentUser: [], 
-            upgradeInProgress: false
+            upgradeInProgress: false,
+            corsProxyFailed: false
         } as IWizdomCorsProxySharedState; 
     }
 }
