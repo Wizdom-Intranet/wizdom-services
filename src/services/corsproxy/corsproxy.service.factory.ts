@@ -16,9 +16,9 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
         return this.frameService;
     }
 
-    private endsWith(str: string | any[], suffix: string | any[]) : boolean {
+    private endsWith(str: string | any[], suffix: any) : boolean {
         // using this endswith method to support IE
-        return str.indexOf((suffix as any), str.length - suffix.length) !== -1;
+        return str.indexOf(suffix, str.length - suffix.length) !== -1;
     }
 
     private getOrCreateIFrame(recreate: boolean = false) : IWizdomCorsProxyIframe {     
