@@ -26,10 +26,7 @@ export class WizdomSpfxServices {
         this.spContext = spContext;
     }
 
-    public async InitAsync(options: any) {          
-        if(console.info != null)
-            console.info("initializing wizdom-intranet/services");
-        
+    public async InitAsync(options: any) {        
         try {
             // Check for development mode            
             var locationWrapper = new LocationWrapper();
@@ -69,8 +66,6 @@ export class WizdomSpfxServices {
             this.WizdomWebApiService = wizdomWebApiServiceFactory.Create();
             
             await Promise.all([translationServicePromise, configurationPromise]);
-
-            console.info("wizdom-intranet/services initialized");            
         } catch(ex) {
             if(console.exception != null)
                 console.exception("wizdom-intranet/services initializing error", ex);            

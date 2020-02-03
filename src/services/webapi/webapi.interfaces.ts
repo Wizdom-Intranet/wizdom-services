@@ -14,3 +14,9 @@ export interface IWizdomWebApiServiceState {
     reCreateIframeTimer : NodeJS.Timer;
     requestRateLimitCounter : number;
 }
+
+export enum WebApiErrorType {
+    RequestFailed,
+    RateLimitExeeded,
+    CorsProxyFailed
+}
