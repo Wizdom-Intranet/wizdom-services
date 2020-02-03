@@ -8,7 +8,7 @@ export class WizdomWebApiServiceFactory {
     }
 
     Create() : IWizdomWebApiService {                        
-        return window["WizdomWebApiService"] = new WizdomWebApiService(this.spHostUrl, this.getWebApiSharedState(), this.corsProxyFactory);
+        return window["WizdomWebApiService"] = window["WizdomWebApiService"] || new WizdomWebApiService(this.spHostUrl, this.getWebApiSharedState(), this.corsProxyFactory);
     }
 
     private getWebApiSharedState() {
