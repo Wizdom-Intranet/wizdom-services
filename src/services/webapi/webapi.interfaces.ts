@@ -13,6 +13,7 @@ export interface IWizdomWebApiServiceState {
     corsProxyReady?: boolean;
     reCreateIframeTimer : NodeJS.Timer;
     requestRateLimitCounter : number;
+    corsProxyFailed: boolean;
 }
 
 export enum WebApiErrorType {

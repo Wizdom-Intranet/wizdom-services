@@ -19,7 +19,8 @@ export class WizdomWebApiServiceFactory {
             reCreateIframeTimer : null,
             corsProxyReady : null,
             eventListenersAttached: false,
-            requestRateLimitCounter: 0
+            requestRateLimitCounter: 0,
+            corsProxyFailed: false,
         } as IWizdomWebApiServiceState; 
     }   
 }

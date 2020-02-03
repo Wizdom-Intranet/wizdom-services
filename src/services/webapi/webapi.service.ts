@@ -7,16 +7,15 @@ const requestRateLimitTimeout = 5*60*1000;
 
 export class WizdomWebApiService implements IWizdomWebApiService {    
     private corsProxy : IWizdomCorsProxyService;
-    public corsProxyFailed: boolean;
 
     constructor(private spHostUrl: string, private state: IWizdomWebApiServiceState, private corsProxyFac: IWizdomCorsProxyServiceFactory) {  
         this.corsProxy = this.corsProxyFac.GetOrCreate(false);
         if(this.state.corsProxyReady == null) // null = unknown/initial state
             this.initCorsProxyMessageHandling();        
-        this.corsProxyFailed = this.corsProxy.corsProxyState.corsProxyFailed;
     }
     private initCorsProxyMessageHandling() {
-        this.state.corsProxyReady = false; // false = "creating"        
+        this.state.corsProxyReady = false; // false = "creating"  
+        this.state.corsProxyFailed = false;      
         this.corsProxy.AddHandler("WizdomCorsProxySuccess", (message) => {
             this.state.corsProxyReady = true;
             for (var i = 0; i < this.state.deferredQueue.length; i++) {
@@ -24,6 +23,13 @@ export class WizdomWebApiService implements IWizdomWebApiService {
             }
             this.state.deferredQueue = [];
         });
+        this.corsProxy.AddHandler("WizdomCorsProxyFailed", (message) => {
+            this.state.corsProxyFailed = true;
+            for (var i = 0; i < this.state.deferredQueue.length; i++) {
+                this.makeRequest.apply(this, this.state.deferredQueue[i]);
+            }
+            this.state.deferredQueue = [];
+        })
         this.corsProxy.AddHandler("RequestSuccess", (message) => {
             this.state.requestQueue[message.requestIndex].success(message.result);
             this.state.requestQueue[message.requestIndex] = null; // cleanup
@@ -62,13 +68,13 @@ export class WizdomWebApiService implements IWizdomWebApiService {
         });
     }
 
-    public makeRequest(url: string, success: Function, fail: Function, method: string, data: any): void {               
-        this.corsProxyFailed = this.corsProxy.corsProxyState.corsProxyFailed;  
-        if (!this.state.corsProxyReady && !this.corsProxyFailed) { // corsproxy not ready yet. Queue up the requests
+    public makeRequest(url: string, success: Function, fail: Function, method: string, data: any): void {
+        
+        if (!this.state.corsProxyReady && !this.state.corsProxyFailed) { // corsproxy not ready yet. Queue up the requests
             console.info("Queued request to: " + url);
             this.state.deferredQueue.push([url, success, fail, method, data]);
         }
-        else if(!this.corsProxyFailed) {
+        else if(!this.state.corsProxyFailed) {
             console.info("Sending request to: " + url);
             var fullUrl = url + (url.indexOf("?") > 0 ? "&" : "?");
             fullUrl += "SPHostUrl=" + this.spHostUrl;

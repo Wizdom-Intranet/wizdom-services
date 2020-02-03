@@ -32,11 +32,11 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
             corsProxyIframe.onload = (ev: Event) => {
                 if(!window["WizdomCorsProxyState"].session) {
                     // If the frame finished loading but the state hasn't been set it's probably stuck on an error page
-                    window["WizdomCorsProxyState"].corsProxyFailed = true;
+                    this.corsproxyFailure();
                 }
             }
             corsProxyIframe.onerror = (ev: Event) => {
-                    window["WizdomCorsProxyState"].corsProxyFailed = true;
+                this.corsproxyFailure();
             }
 
             document.body.appendChild(corsProxyIframe);
@@ -44,6 +44,10 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
             window["WizdomCorsProxy"] = corsProxyIframe;
         }
         return window["WizdomCorsProxy"]["contentWindow"];
+    }
+    private corsproxyFailure() {
+        window["WizdomCorsProxyState"].corsProxyFailed = true;
+        this.frameService.HandleMessage({command: "WizdomCorsProxyFailed"});
     }
 
     private addEventListeners(){
@@ -66,12 +70,10 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
                 window["WizdomCorsProxyState"].rolesForCurrentUser = message.rolesForCurrentUser;
                 window["WizdomCorsProxyState"].upgradeInProgress = message.upgradeInProgress;
 
+                this.frameService.HandleMessage(message);
             } else if (message.command === "WizdomCorsProxyFailed") {
-                window["WizdomCorsProxyState"].corsProxyFailed = true;
-                alert("WizdomCorsProxyFailed");
+                this.corsproxyFailure();
             }
-            
-            this.frameService.HandleMessage(message);
 
         } catch (ex) {
             //console.log("wizdom postmessage error", e.data, ex);
