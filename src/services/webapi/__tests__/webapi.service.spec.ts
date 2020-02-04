@@ -1,5 +1,5 @@
 import { WizdomWebApiService } from "../webapi.service";
-import { IWizdomWebApiServiceState, IWizdomWebApiService } from "../webapi.interfaces";
+import { IWizdomWebApiServiceState, IWizdomWebApiService, WebApiErrorType } from "../webapi.interfaces";
 import { IWizdomCorsProxyService, IWizdomCorsProxySharedState, IWizdomCorsProxyServiceFactory } from "../../corsproxy/corsproxy.interfaces"
 
 describe("WizdomWebApiService", () => {
@@ -30,7 +30,8 @@ describe("WizdomWebApiService", () => {
             requestQueue: {},
             requestIndex: 0,
             corsProxyReady: null,
-            requestRateLimitCounter : 0
+            requestRateLimitCounter : 0,
+            corsProxyFailed: false,
         } as IWizdomWebApiServiceState        
     });
 
@@ -71,7 +72,7 @@ describe("WizdomWebApiService", () => {
             expect(webapiService.Get("api/test")).rejects.toBeNull(); // this will "force" the promise to actually be "run"
 
         // expect error for request #301
-        expect(webapiService.Get("api/test")).rejects.toEqual("Corsproxy request ratelimit exceeded");
+        expect(webapiService.Get("api/test")).rejects.toEqual({errorType: WebApiErrorType.RateLimitExeeded, message: "Corsproxy request ratelimit exceeded"});
     });
 
     it("should not ratelimit, if 301 GET requests are made over a period of 6 min", async ()=>{
@@ -99,4 +100,15 @@ describe("WizdomWebApiService", () => {
         for(var i=0;i<301;i++)
             expect(webapiService.Post("api/test", {})).rejects.toBeNull(); // this will "force" the promise to actually be "run"
     });
+
+    it("Should fail requests if the corsproxy has an error", () => {
+        console.info = console.error = jest.fn(); // hide console spam from the SUT
+
+        var webapiService = setupWizdomWebApiService();
+         state.corsProxyReady = true; // testing request when cors proxy is ready
+         state.corsProxyFailed = true;
+
+        // expect error for request
+        expect(webapiService.Get("api/test")).rejects.toEqual({errorType: WebApiErrorType.CorsProxyFailed , message: "Corsproxy failed initilisation"});
+    })
 });
