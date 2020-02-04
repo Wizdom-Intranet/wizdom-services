@@ -111,4 +111,44 @@ describe("WizdomWebApiService", () => {
         // expect error for request
         expect(webapiService.Get("api/test")).rejects.toEqual({errorType: WebApiErrorType.CorsProxyFailed , message: "Corsproxy failed initilisation"});
     })
+
+    it("Should fail queued requests if the corsproxy state chages to error", () => {
+        console.info = console.error = jest.fn(); // hide console spam from the SUT
+
+        var webapiService = setupWizdomWebApiService();
+         state.corsProxyReady = false;
+         state.corsProxyFailed = false;
+
+        // expect error for request when corsproxystate gets updated to failed
+        expect(webapiService.Get("api/test")).rejects.toEqual({errorType: WebApiErrorType.CorsProxyFailed , message: "Corsproxy failed initilisation"});
+
+        corsProxy.HandleMessage("WizdomCorsProxyFailed");
+    })
+
+    it("Should start failing requests if the corsproxy state chages to error", () => {
+        console.info = console.error = jest.fn(); // hide console spam from the SUT
+
+        var webapiService = setupWizdomWebApiService();
+         state.corsProxyReady = true;
+         state.corsProxyFailed = false;
+
+        // Expect success before corsproxy fails
+        expect(webapiService.Get("api/test")).rejects.toBeNull();
+
+        corsProxy.HandleMessage("WizdomCorsProxyFailed");
+
+        // expect error for request when corsproxystate has been updated to failed
+        expect(webapiService.Get("api/test")).rejects.toEqual({errorType: WebApiErrorType.CorsProxyFailed , message: "Corsproxy failed initilisation"});
+    })
+
+    it("Should complete queued requests when corsproxy succeedes initilization", () => {
+        console.info = console.error = jest.fn(); // hide console spam from the SUT
+
+        var webapiService = setupWizdomWebApiService();
+         state.corsProxyReady = true; // testing request when cors proxy is ready
+         state.corsProxyFailed = true; // testing request when cors proxy failed init
+
+        // expect error for request when state is dublicious claiming both success and faliure for the corsproxy state
+        expect(webapiService.Get("api/test")).rejects.toEqual({errorType: WebApiErrorType.CorsProxyFailed , message: "Corsproxy failed initilisation"});
+    })
 });
