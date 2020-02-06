@@ -19,6 +19,7 @@ export interface IWizdomCorsProxySharedState {
     allWizdomRoles: Array<string>;
     rolesForCurrentUser: Array<string>;
     upgradeInProgress: boolean;
+    corsProxyFailed: boolean;
 }
 
 export type IFrameFunction = (recreate?: boolean) => IWizdomCorsProxyIframe;
