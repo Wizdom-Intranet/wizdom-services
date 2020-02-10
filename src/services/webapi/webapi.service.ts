@@ -31,7 +31,6 @@ export class WizdomWebApiService implements IWizdomWebApiService {
             this.state.deferredQueue = [];
         })
         this.corsProxy.AddHandler("RequestSuccess", (message) => {
-            console.log("Request success");
             this.state.requestQueue[message.requestIndex].success(message.result);
             this.state.requestQueue[message.requestIndex] = null; // cleanup
         });
