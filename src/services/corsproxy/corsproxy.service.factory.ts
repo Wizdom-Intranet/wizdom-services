@@ -29,12 +29,16 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
             var appUrl = this.endsWith(this.context.appUrl, "/") ? this.context.appUrl : this.context.appUrl + "/";
             corsProxyIframe.src = this.spHostUrl + "/_layouts/15/appredirect.aspx?client_id=" + this.context.clientId + "&redirect_uri=" + appUrl + "Base/WizdomCorsProxy.aspx?{StandardTokens}" + "%26isModern=true%26userLoginName=" + encodeURIComponent(this.userLoginName);            
 
+            let appredirectDone = false;
             corsProxyIframe.onload = (ev: Event) => {
-                if(!window["WizdomCorsProxyState"].session) {
+                if(!appredirectDone) {
+                    appredirectDone = true;
+                }
+                else if(!window["WizdomCorsProxyState"].session) {
                     // If the frame finished loading but the state hasn't been set it's probably stuck on an error page
                     this.corsproxyFailure();
                 }
-            }
+            };
             corsProxyIframe.onerror = (ev: Event) => {
                 this.corsproxyFailure();
             }
@@ -58,7 +62,7 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
     }
     
     private postMessageHandler(e: { data: string; }) {        
-        try {            
+        try {
             var message = JSON.parse(e.data);
             if (!message.command)
                 return;
@@ -70,10 +74,12 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
                 window["WizdomCorsProxyState"].rolesForCurrentUser = message.rolesForCurrentUser;
                 window["WizdomCorsProxyState"].upgradeInProgress = message.upgradeInProgress;
 
-                this.frameService.HandleMessage(message);
             } else if (message.command === "WizdomCorsProxyFailed") {
                 this.corsproxyFailure();
+                return;
             }
+
+            this.frameService.HandleMessage(message);
 
         } catch (ex) {
             //console.log("wizdom postmessage error", e.data, ex);
