@@ -49,9 +49,9 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
                         setTimeout(onloadFunc, 10);
                     }
                 }
-                
-                corsProxyIframe.onload = onloadFunc;
             };
+            corsProxyIframe.onload = onloadFunc;
+            
             corsProxyIframe.onerror = (ev: Event) => {
                 this.corsproxyFailure();
             }
