@@ -8,6 +8,10 @@ export class WizdomCorsProxyService implements IWizdomCorsProxyService {
         
     }
 
+    RefreshFrame(frame: IWizdomCorsProxyIframe) {
+        this.iframe = frame;
+    }
+
     Message(message: any): void {
         this.iframe.postMessage(JSON.stringify(message), "*");
     }
