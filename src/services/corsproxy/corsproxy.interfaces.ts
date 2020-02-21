@@ -3,7 +3,6 @@ export interface IWizdomCorsProxyServiceFactory {
 }
 
 export interface IWizdomCorsProxyService {
-    RefreshFrame(frame: IWizdomCorsProxyIframe);
     corsProxyState: IWizdomCorsProxySharedState;
     Message(message: any): void;
     HandleMessage(message: any): void;

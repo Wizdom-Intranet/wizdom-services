@@ -5,20 +5,16 @@ import { WizdomCorsProxyService } from "./corsproxy.service";
 
 export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFactory {
     private frameService: IWizdomCorsProxyService;
+    private frameWindow: IWizdomCorsProxyIframe;
 
     constructor(private context: IWizdomContext, private spHostUrl: string, private userLoginName: string ) {
         this.addEventListeners();   
     }
 
     GetOrCreate(recreate: boolean = false) : IWizdomCorsProxyService {
-        var frame = this.getOrCreateIFrame(recreate);
+        this.frameWindow = this.getOrCreateIFrame(recreate);
 
-        if(this.frameService) {
-            this.frameService.RefreshFrame(frame);
-        }
-        else {
-            this.frameService = new WizdomCorsProxyService(frame, this.getCorsProxySharedState());
-        }
+        this.frameService = this.frameService || new WizdomCorsProxyService(this.sendMessage, this.getCorsProxySharedState());
             
         return this.frameService;
     }
@@ -76,6 +72,10 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
             window.addEventListener('message', this.postMessageHandler.bind(this), false);
         else if (typeof window["attachEvent"] != 'undefined')
             window["attachEvent"]('onmessage', this.postMessageHandler.bind(this));
+    }
+
+    private sendMessage(message: any) {
+        this.frameWindow.postMessage(JSON.stringify(message), "*");
     }
     
     private postMessageHandler(e: { data: string; }) {        
