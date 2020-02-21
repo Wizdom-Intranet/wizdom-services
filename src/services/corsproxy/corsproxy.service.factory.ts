@@ -14,7 +14,7 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
     GetOrCreate(recreate: boolean = false) : IWizdomCorsProxyService {
         this.frameWindow = this.getOrCreateIFrame(recreate);
 
-        this.frameService = this.frameService || new WizdomCorsProxyService(this.sendMessage, this.getCorsProxySharedState());
+        this.frameService = this.frameService || new WizdomCorsProxyService(this.sendMessage.bind(this), this.getCorsProxySharedState());
             
         return this.frameService;
     }
