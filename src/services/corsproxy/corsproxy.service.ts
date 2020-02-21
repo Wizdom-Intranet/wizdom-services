@@ -4,12 +4,12 @@ export class WizdomCorsProxyService implements IWizdomCorsProxyService {
     
     private handlers: any = {};
 
-    constructor(private iframe: IWizdomCorsProxyIframe, public corsProxyState: IWizdomCorsProxySharedState) {  
+    constructor(private messageDelegate: (message: any) => void, public corsProxyState: IWizdomCorsProxySharedState) {  
         
     }
 
     Message(message: any): void {
-        this.iframe.postMessage(JSON.stringify(message), "*");
+        this.messageDelegate(message);
     }
 
     HandleMessage(message: any): void {

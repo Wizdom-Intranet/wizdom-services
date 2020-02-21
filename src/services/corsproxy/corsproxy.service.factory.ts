@@ -5,14 +5,17 @@ import { WizdomCorsProxyService } from "./corsproxy.service";
 
 export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFactory {
     private frameService: IWizdomCorsProxyService;
+    private frameWindow: IWizdomCorsProxyIframe;
 
     constructor(private context: IWizdomContext, private spHostUrl: string, private userLoginName: string ) {
         this.addEventListeners();   
     }
 
     GetOrCreate(recreate: boolean = false) : IWizdomCorsProxyService {
-        var frame = this.getOrCreateIFrame(recreate);
-        this.frameService = this.frameService || new WizdomCorsProxyService(frame, this.getCorsProxySharedState());
+        this.frameWindow = this.getOrCreateIFrame(recreate);
+
+        this.frameService = this.frameService || new WizdomCorsProxyService(this.sendMessage, this.getCorsProxySharedState());
+            
         return this.frameService;
     }
 
@@ -30,14 +33,24 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
             corsProxyIframe.src = this.spHostUrl + "/_layouts/15/appredirect.aspx?client_id=" + this.context.clientId + "&redirect_uri=" + appUrl + "Base/WizdomCorsProxy.aspx?{StandardTokens}" + "%26isModern=true%26userLoginName=" + encodeURIComponent(this.userLoginName);            
 
             let appredirectDone = false;
-            corsProxyIframe.onload = (ev: Event) => {
+            let hasRetried = false;
+            let onloadFunc = (ev: Event) => {
+                
                 if(!appredirectDone) {
                     appredirectDone = true;
                 }
                 else if(!window["WizdomCorsProxyState"].session) {
                     // If the frame finished loading but the state hasn't been set it's probably stuck on an error page
-                    this.corsproxyFailure();
+                    if(hasRetried) {
+                        this.corsproxyFailure();
+                    }
+                    else {
+                        hasRetried = true;
+                        setTimeout(onloadFunc, 10);
+                    }
                 }
+                
+                corsProxyIframe.onload = onloadFunc;
             };
             corsProxyIframe.onerror = (ev: Event) => {
                 this.corsproxyFailure();
@@ -59,6 +72,10 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
             window.addEventListener('message', this.postMessageHandler.bind(this), false);
         else if (typeof window["attachEvent"] != 'undefined')
             window["attachEvent"]('onmessage', this.postMessageHandler.bind(this));
+    }
+
+    private sendMessage(message: any) {
+        this.frameWindow.postMessage(JSON.stringify(message), "*");
     }
     
     private postMessageHandler(e: { data: string; }) {        
