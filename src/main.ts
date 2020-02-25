@@ -5,3 +5,7 @@ export { IWizdomContext } from "./services/context/context.interfaces";
 export { IWizdomWebApiService, WebApiErrorType } from "./services/webapi/webapi.interfaces";
 export { IWizdomTranslationService } from "./services/translations/translation.interfaces";
 export { IHttpClient, IHttpClientResponse } from "./shared/httpclient.wrappers/http.interfaces";
+
+
+export { WizdomWebApiServiceFactory } from "./services/webapi/webapi.service.factory";
+export { WizdomCorsProxyServiceFactory } from "./services/corsproxy/corsproxy.service.factory";

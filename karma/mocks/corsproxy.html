@@ -1,0 +1,56 @@
+<html>
+    <head>
+        <script>
+            function reportIsReady() {
+                console.log("Cors proxy reportIsReady");
+                window.parent.postMessage(JSON.stringify({ command: "WizdomCorsProxySuccess", session: "urg4a2lrn3knucuqfvxonjlr", msLeftOnToken: 25803932, allWizdomRoles: ["Admin_Global_Admin","Admin_Global_Any","Modules_Global_Admin","Modules_Global_Any","Admin_Global_Configuration","Admin_Global_Documentation","Admin_Accelerate_Admin","Admin_Analytics_Admin","Admin_Audience_Admin","Admin_Cache_Admin","Admin_ComplianceReport_Admin","Admin_ExportImport_Admin","Admin_ForgetUser_Admin","Admin_SampleImages_Admin","Admin_Security_Admin","Admin_Installation_Admin","Admin_IoC_Admin","Admin_Languages_Admin","Admin_License_Admin","Admin_Log_Admin","Admin_ModernDeploy_Admin","Admin_NotificationAdvSettings_Admin","Admin_Permissions_Admin","Admin_ReplaceContacts_Admin","Admin_Sitecollections_Admin","Admin_Timerjob_Admin","Admin_Translations_Admin","Admin_Upgrade_Admin","Admin_Webhooks_Admin","Modules_Birthday_Admin","Modules_Breadcrumb_Admin","Modules_CanteenMenu_Admin","Modules_ContentPage_Admin","Modules_ContentStore_Admin","Modules_CorporateNews_Admin","Modules_CourseManagement_Admin","Modules_CurrentMenu_Admin","Modules_DepartmentUsers_Admin","Modules_EditorRevision_Admin","Modules_Employees_Admin","Modules_FAQ_Admin","Modules_Footer_Admin","Modules_Gamification_Admin","Modules_GovernMetadata_Admin","Modules_HelpDesk_Admin","Modules_ImageSlider_Admin","Modules_Kanban_Admin","Modules_LightningPages_Admin","Modules_LiveTiles_Admin","Modules_Manual_Admin","Modules_Megamenu_Admin","Modules_Noticeboard_Admin","Modules_Noticeboard_Insights","Modules_Notifications_Admin","Modules_PageContact_Admin","Modules_PageInfo_Admin","Modules_PageRelations_Admin","Modules_PageRevision_Admin","Modules_PageTranslation_Admin","Modules_PersonalLink_Admin","Modules_Phonebook_Admin","Modules_Poll_Admin","Modules_Powerpanel_Admin","Modules_ProfileProgress_Admin","Modules_ProjectSpace_Admin","Modules_Richtext_Admin","Modules_Servicemenu_Admin","Modules_Style_Admin","Modules_TemplateManager_Admin","Modules_Weather_Admin","Modules_Webform_Admin","Modules_Yammer_Admin"], rolesForCurrentUser: ["Admin_Global_Admin","Admin_Global_Any","Modules_Global_Admin","Modules_Global_Any","Admin_Global_Configuration","Admin_Global_Documentation","Admin_Accelerate_Admin","Admin_Analytics_Admin","Admin_Audience_Admin","Admin_Cache_Admin","Admin_ComplianceReport_Admin","Admin_ExportImport_Admin","Admin_ForgetUser_Admin","Admin_SampleImages_Admin","Admin_Security_Admin","Admin_Installation_Admin","Admin_IoC_Admin","Admin_Languages_Admin","Admin_License_Admin","Admin_Log_Admin","Admin_ModernDeploy_Admin","Admin_NotificationAdvSettings_Admin","Admin_Permissions_Admin","Admin_ReplaceContacts_Admin","Admin_Sitecollections_Admin","Admin_Timerjob_Admin","Admin_Translations_Admin","Admin_Upgrade_Admin","Admin_Webhooks_Admin","Modules_Birthday_Admin","Modules_Breadcrumb_Admin","Modules_CanteenMenu_Admin","Modules_ContentPage_Admin","Modules_ContentStore_Admin","Modules_CorporateNews_Admin","Modules_CourseManagement_Admin","Modules_CurrentMenu_Admin","Modules_DepartmentUsers_Admin","Modules_EditorRevision_Admin","Modules_Employees_Admin","Modules_FAQ_Admin","Modules_Footer_Admin","Modules_Gamification_Admin","Modules_GovernMetadata_Admin","Modules_HelpDesk_Admin","Modules_ImageSlider_Admin","Modules_Kanban_Admin","Modules_LightningPages_Admin","Modules_LiveTiles_Admin","Modules_Manual_Admin","Modules_Megamenu_Admin","Modules_Noticeboard_Admin","Modules_Noticeboard_Insights","Modules_Notifications_Admin","Modules_PageContact_Admin","Modules_PageInfo_Admin","Modules_PageRelations_Admin","Modules_PageRevision_Admin","Modules_PageTranslation_Admin","Modules_PersonalLink_Admin","Modules_Phonebook_Admin","Modules_Poll_Admin","Modules_Powerpanel_Admin","Modules_ProfileProgress_Admin","Modules_ProjectSpace_Admin","Modules_Richtext_Admin","Modules_Servicemenu_Admin","Modules_Style_Admin","Modules_TemplateManager_Admin","Modules_Weather_Admin","Modules_Webform_Admin","Modules_Yammer_Admin"], upgradeInProgress: false }), "*");
+            }
+            reportIsReady();
+
+            function requestSuccess(requestIndex, data, url) {
+                window.parent.postMessage(JSON.stringify({
+                    command: "RequestSuccess",
+                    requestIndex: requestIndex,
+                    result: data,
+                    url: url
+                }), "*");
+            }
+            function requestFailed(requestIndex, data, url) {
+                window.parent.postMessage(JSON.stringify({
+                    command: data && data.status === 403 ? "TokenExpired" : "RequestFailed",
+                    requestIndex: requestIndex,
+                    result: flatten(data),
+                    url: url
+                }), "*");
+            }
+
+            function getUrl(message){                        
+                var url = message.url + getQueryString(message.url);
+                requestSuccess(message.requestIndex, url);
+            }
+
+            function postMessageHandler(e) {
+                try {
+                    console.log("GOT A MESSAGE");
+                    var message = JSON.parse(e.data);
+
+                    if (message.method == "GETURL")
+                        getUrl(message);
+                    else if(message.method == "PING")
+                        reportIsReady();
+                    else
+                        // makeRequest(message);
+                        requestSuccess(message.requestIndex, "", message.url);
+                }
+                catch (ex) {
+
+                }
+            }
+
+            if (typeof window.addEventListener != 'undefined')
+                window.addEventListener('message', postMessageHandler, false);
+            else if (typeof window.attachEvent != 'undefined')
+                window.attachEvent('onmessage', postMessageHandler);
+        </script>
+    </head>
+</html>
