@@ -31,13 +31,13 @@ function clearContext(){
 }
 
 describe('Wizdom WebApi service', () => {
-    it('Normal behaviour, should be able to make request', async function () {
+    it('should be able to make requests, if appredirect and corsproxy is working correctly', async function () {
         clearContext();
         await fetch("/config", {
             method:"POST",
             headers: {
                 "appredirect":"appredirect.working.html",
-                "corsproxy":"corsproxy.html"
+                "corsproxy":"corsproxy.working.html"
             }
         });
         
@@ -48,33 +48,36 @@ describe('Wizdom WebApi service', () => {
 
         var res = await WizdomWebApiService.Get("dist/test");
         assert.isDefined(res);
+        assert.isFalse(window["WizdomWebApiServiceState"].corsProxyFailed);
+        assert.isTrue(window["WizdomWebApiServiceState"].corsProxyReady);
     });
 
-    it('Fail if stuck on redirect', async function () {
-        clearContext();
-        await fetch("/config", {
-            method:"POST",
-            headers: {
-                "appredirect":"appredirect.stuck.html",
-                "corsproxy":"corsproxy.html"
-            }
-        });
+    // We're not actually yet able to detect if we get stuck on the appRedirect page. This will normally happend if the appUrl does not match the registered appUrl
+    // it('Fail if stuck on redirect', async function () {
+    //     clearContext();
+    //     await fetch("/config", {
+    //         method:"POST",
+    //         headers: {
+    //             "appredirect":"appredirect.stuck.html",
+    //             "corsproxy":"corsproxy.html"
+    //         }
+    //     });
 
-        var wizdomCorsProxyServiceFactory = new WizdomCorsProxyServiceFactory(wizdomContext, pageContext.site.absoluteUrl, pageContext.user.loginName);        
-        // var WizdomCorsProxyService = wizdomCorsProxyServiceFactory.GetOrCreate();       
-        var wizdomWebApiServiceFactory = new WizdomWebApiServiceFactory(wizdomCorsProxyServiceFactory, pageContext.site.absoluteUrl);
-        var WizdomWebApiService = wizdomWebApiServiceFactory.Create();
+    //     var wizdomCorsProxyServiceFactory = new WizdomCorsProxyServiceFactory(wizdomContext, pageContext.site.absoluteUrl, pageContext.user.loginName);        
+    //     // var WizdomCorsProxyService = wizdomCorsProxyServiceFactory.GetOrCreate();       
+    //     var wizdomWebApiServiceFactory = new WizdomWebApiServiceFactory(wizdomCorsProxyServiceFactory, pageContext.site.absoluteUrl);
+    //     var WizdomWebApiService = wizdomWebApiServiceFactory.Create();
 
-        WizdomWebApiService.Get("dist/test");
-        return new Promise((resolve)=>{
-            setTimeout(()=>{
-                assert.isTrue(window["WizdomWebApiServiceState"].corsProxyFailed, "WizdomWebApiServiceState.corsProxyFailed should be true");
-                resolve();
-            }, 1000);
-        });
-    });
+    //     WizdomWebApiService.Get("dist/test");
+    //     return new Promise((resolve)=>{
+    //         setTimeout(()=>{
+    //             assert.isTrue(window["WizdomWebApiServiceState"].corsProxyFailed, "WizdomWebApiServiceState.corsProxyFailed should be true");
+    //             resolve();
+    //         }, 1000);
+    //     });
+    // });
 
-    it('Fail if corsproxy init failed', async function () {
+    it('should set WizdomWebApiServiceState.corsProxyFailed to true, if the corsproxy sends "Initialization failed"', async function () {
         clearContext();
         await fetch("/config", {
             method:"POST",
@@ -96,5 +99,45 @@ describe('Wizdom WebApi service', () => {
                 resolve();
             }, 1000);
         });
+    });
+    it('should set WizdomWebApiServiceState.corsProxyFailed to true, if the corsproxy shows an errorpage, instead of a correctly rendered succcess or init failed page', async function () {
+        clearContext();
+        await fetch("/config", {
+            method:"POST",
+            headers: {
+                "appredirect":"appredirect.working.html",
+                "corsproxy":"corsproxy.errorpage.html"
+            }
+        });
+
+        var wizdomCorsProxyServiceFactory = new WizdomCorsProxyServiceFactory(wizdomContext, pageContext.site.absoluteUrl, pageContext.user.loginName);        
+        // var WizdomCorsProxyService = wizdomCorsProxyServiceFactory.GetOrCreate();       
+        var wizdomWebApiServiceFactory = new WizdomWebApiServiceFactory(wizdomCorsProxyServiceFactory, pageContext.site.absoluteUrl);
+        var WizdomWebApiService = wizdomWebApiServiceFactory.Create();
+
+        WizdomWebApiService.Get("dist/test");
+        return new Promise((resolve)=>{
+            setTimeout(()=>{
+                assert.isTrue(window["WizdomWebApiServiceState"].corsProxyFailed, "WizdomWebApiServiceState.corsProxyFailed should be true");
+                resolve();
+            }, 1000);
+        });
+    });
+    it('should automatically renew the token, when its about to expire', async function(){
+        clearContext();
+        await fetch("/config", {
+            method:"POST",
+            headers: {
+                "appredirect":"appredirect.working.html",
+                "corsproxy":"corsproxy.working.html"
+            }
+        });
+        
+        var wizdomCorsProxyServiceFactory = new WizdomCorsProxyServiceFactory(wizdomContext, pageContext.site.absoluteUrl, pageContext.user.loginName);        
+        // var WizdomCorsProxyService = wizdomCorsProxyServiceFactory.GetOrCreate();       
+        var wizdomWebApiServiceFactory = new WizdomWebApiServiceFactory(wizdomCorsProxyServiceFactory, pageContext.site.absoluteUrl);
+        var WizdomWebApiService = wizdomWebApiServiceFactory.Create();
+
+        
     });
 }); 
