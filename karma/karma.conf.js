@@ -10,6 +10,18 @@ module.exports = function (config) {
                 type: 'module',
                 included: true,
                 served: true
+            },
+            {
+                pattern: "../dist/index.js",
+                watched : true,
+                included: false,
+                served : false
+            },
+            {
+                pattern: "./mocks/*.*",
+                watched : true,
+                included: false,
+                served : false
             }
         ],
         reporters: ['progress'],
