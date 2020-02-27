@@ -39,8 +39,8 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
                 if(!appredirectDone) {
                     appredirectDone = true;
                 }
-                else if(!window["WizdomCorsProxyState"].session) {
-                    // If the frame finished loading but the state hasn't been set it's probably stuck on an error page
+                else if(corsProxyIframe.contentDocument) {
+                    // If the frame finished loading and we can access the content docuemnt set it's probably stuck on an error page on the sharepoint domain
                     if(hasRetried) {
                         this.corsproxyFailure();
                     }
