@@ -22,7 +22,13 @@ module.exports = function (config) {
                 watched : true,
                 included: false,
                 served : false
-            }
+            },
+            // {
+            //     pattern: "../node_modules/sinon/pkg/sinon-esm.js",
+            //     watched : false,
+            //     included: false,
+            //     served : true
+            // }
         ],
         reporters: ['progress'],
         port: 9876,  // karma web server port

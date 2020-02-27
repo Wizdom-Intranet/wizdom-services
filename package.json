@@ -24,6 +24,7 @@
         "es6-promise": "^4.2.6"
     },
     "devDependencies": {
+        "@sinonjs/fake-timers": "^6.0.0",
         "@types/chai": "^4.1.7",
         "@types/jest": "^24.0.13",
         "@types/mocha": "^5.2.6",
@@ -50,6 +51,7 @@
         "rollup-plugin-generate-package-json": "^2.0.1",
         "rollup-plugin-sourcemaps": "^0.4.2",
         "rollup-plugin-typescript2": "^0.8.1",
+        "sinon": "^9.0.0",
         "ts-jest": "^24.0.2",
         "typescript": "^3.4.5",
         "url": "^0.11.0",

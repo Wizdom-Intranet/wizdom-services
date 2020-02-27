@@ -5,13 +5,17 @@ const staticFiles = require('koa-static');
 const getStream = require('get-stream');
 var fs = require('fs');
 
-console.log("KARMA PROXY")
+console.log("KARMA PROXY");
+
 module.exports = (karma) => {
     return new Koa()
         .use(mount('/dist',
             new Koa()
                 .use(distMiddleware)
                 .use(staticFiles(resolve(__dirname + "..\\..\\dist")))))
+        .use(mount('/node_modules',
+            new Koa()
+                .use(staticFiles(resolve(__dirname + "\\..\\node_modules")))))
         .use(mount('/config',
             new Koa()
                 .use(configMiddleware)))

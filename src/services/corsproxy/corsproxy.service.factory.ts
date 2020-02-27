@@ -3,6 +3,7 @@ import { IWizdomCorsProxyIframe, IWizdomCorsProxyService } from "./corsproxy.int
 import { IWizdomCorsProxyServiceFactory, IWizdomCorsProxySharedState } from "./corsproxy.interfaces";
 import { WizdomCorsProxyService } from "./corsproxy.service";
 
+const msBeforeAutorefreshOfExpiringToken = 2*60*1000; // to min before token expires, refresh it
 export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFactory {
     private frameService: IWizdomCorsProxyService;
     private frameWindow: IWizdomCorsProxyIframe;
@@ -78,6 +79,22 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
         this.frameWindow.postMessage(JSON.stringify(message), "*");
     }
     
+    private queueTokenRefresh(msLeftOnToken){
+        if(msLeftOnToken<msBeforeAutorefreshOfExpiringToken)
+        {
+            console.log("token will expire soon, refresh it");
+            this.frameService.HandleMessage({command: "TokenExpired"});
+        }
+        else
+        {
+            console.log("token will automatically refresh in " + (msLeftOnToken-msBeforeAutorefreshOfExpiringToken) + "ms");
+            setTimeout(() => {
+                console.log("token will expire in " + msBeforeAutorefreshOfExpiringToken + " ms, refresh it");
+                this.frameService.HandleMessage({command: "TokenExpired"});
+            }, msLeftOnToken-msBeforeAutorefreshOfExpiringToken);
+        }
+    }
+
     private postMessageHandler(e: { data: string; }) {        
         try {
             var message = JSON.parse(e.data);
@@ -90,7 +107,7 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
                 window["WizdomCorsProxyState"].allWizdomRoles = message.allWizdomRoles;
                 window["WizdomCorsProxyState"].rolesForCurrentUser = message.rolesForCurrentUser;
                 window["WizdomCorsProxyState"].upgradeInProgress = message.upgradeInProgress;
-
+                this.queueTokenRefresh(message.msLeftOnToken);
             } else if (message.command === "WizdomCorsProxyFailed") {
                 this.corsproxyFailure();
                 return;

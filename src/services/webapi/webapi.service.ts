@@ -45,10 +45,13 @@ export class WizdomWebApiService implements IWizdomWebApiService {
                 // this.state.corsProxyReady = false;
                 if(!this.state.reCreateIframeTimer){
                     console.log("Recreate iframe");
-                    this.corsProxy = this.corsProxyFac.GetOrCreate(true);                    
+                    this.corsProxy = this.corsProxyFac.GetOrCreate(true);   
+                    console.log("1");                 
                     this.initCorsProxyMessageHandling();
+                    console.log("2");                 
     
                     this.state.reCreateIframeTimer = setTimeout(() => { // this will block all token expires for the next 60 sec, to prevent DDOS
+                        console.log("reCreateIframeTimer timeout");
                         this.state.reCreateIframeTimer = null;
                         // if the corsproxy still isnt ready after 60 sec, try again. Wizdom is probably not responding, maybe due to updates
                         if(!this.state.corsProxyReady)
@@ -62,9 +65,13 @@ export class WizdomWebApiService implements IWizdomWebApiService {
             } 
 
             // queue up the request again
-            var request = this.state.requestQueue[message.requestIndex];
-            this.makeRequest(request.url, request.success, request.fail, request.method, request.data);
-            this.state.requestQueue[message.requestIndex] = null; // cleanup
+            if(message.requestIndex != undefined)
+            {
+                var request = this.state.requestQueue[message.requestIndex];
+                this.makeRequest(request.url, request.success, request.fail, request.method, request.data);
+                this.state.requestQueue[message.requestIndex] = null; // cleanup
+            }
+
         });
     }
 
