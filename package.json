@@ -1,6 +1,6 @@
 {
     "name": "@wizdom-intranet/services",
-    "version": "1.4.8",
+    "version": "1.4.9",
     "description": "A list of core service to ease Wizdom development",
     "main": "dist/index.js",
     "types": "dist/main.d.ts",
