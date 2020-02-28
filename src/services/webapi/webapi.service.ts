@@ -80,7 +80,7 @@ export class WizdomWebApiService implements IWizdomWebApiService {
         else if(!this.state.corsProxyFailed) {
             console.info("Sending request to: " + url);
             var fullUrl = url + (url.indexOf("?") > 0 ? "&" : "?");
-            const isExternalRequest = fullUrl.indexOf('://')<10;
+            const isExternalRequest = fullUrl.indexOf('://')<10 && fullUrl.indexOf('://')>=0;
             fullUrl += "SPHostUrl=" + this.spHostUrl;
             if(!isExternalRequest && fullUrl[0] != "/")
                 fullUrl = "/" + fullUrl;
