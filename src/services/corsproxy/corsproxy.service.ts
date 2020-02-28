@@ -17,7 +17,8 @@ export class WizdomCorsProxyService implements IWizdomCorsProxyService {
             this.corsProxyState = window["WizdomCorsProxyState"];
         }
 
-        if (message.command === "WizdomCorsProxyFailed" && !window["WizdomCorsProxyState"].session) {            
+        if (message.command === "WizdomCorsProxyFailed" && !window["WizdomCorsProxyState"].session) {   
+            console.error("Corsproxy failed to initialize");         
             this.corsProxyState = window["WizdomCorsProxyState"];
         }
 

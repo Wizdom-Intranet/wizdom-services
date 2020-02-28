@@ -50,6 +50,7 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
                     if(iframeIsInSPDomain){
                         // If the frame finished loading and we can access the content docuemnt set it's probably stuck on an error page on the sharepoint domain
                         if(hasRetried) {
+                            console.error("Corsproxy initialize might have failed");
                             this.corsproxyFailure();
                         }
                         else {
@@ -62,7 +63,8 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
             corsProxyIframe.onload = onloadFunc;
             
             corsProxyIframe.onerror = (ev: Event) => {
-                this.corsproxyFailure();
+                console.error("Corsproxy initialize might have failed");
+                this.corsproxyFailure();                
             }
 
             document.body.appendChild(corsProxyIframe);
