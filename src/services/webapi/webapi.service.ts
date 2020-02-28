@@ -18,6 +18,7 @@ export class WizdomWebApiService implements IWizdomWebApiService {
         this.state.corsProxyFailed = false;      
         this.corsProxy.AddHandler("WizdomCorsProxySuccess", (message) => {
             this.state.corsProxyReady = true;
+            this.state.corsProxyFailed = false;
             for (var i = 0; i < this.state.deferredQueue.length; i++) {
                 this.makeRequest.apply(this, this.state.deferredQueue[i]);
             }
@@ -25,10 +26,11 @@ export class WizdomWebApiService implements IWizdomWebApiService {
         });
         this.corsProxy.AddHandler("WizdomCorsProxyFailed", (message) => {
             this.state.corsProxyFailed = true;
-            for (var i = 0; i < this.state.deferredQueue.length; i++) {
-                this.makeRequest.apply(this, this.state.deferredQueue[i]);
-            }
-            this.state.deferredQueue = [];
+            // dont clear the queue on fail, to allow it to recover
+            // for (var i = 0; i < this.state.deferredQueue.length; i++) {
+            //     this.makeRequest.apply(this, this.state.deferredQueue[i]);
+            // }
+            // this.state.deferredQueue = [];
         })
         this.corsProxy.AddHandler("RequestSuccess", (message) => {
             this.state.requestQueue[message.requestIndex].success(message.result);

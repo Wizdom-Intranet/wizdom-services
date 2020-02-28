@@ -39,14 +39,23 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
                 if(!appredirectDone) {
                     appredirectDone = true;
                 }
-                else if(corsProxyIframe.contentDocument) {
-                    // If the frame finished loading and we can access the content docuemnt set it's probably stuck on an error page on the sharepoint domain
-                    if(hasRetried) {
-                        this.corsproxyFailure();
+                else {
+                    var iframeIsInSPDomain = false;
+                    try{
+                        iframeIsInSPDomain = !!corsProxyIframe.contentDocument;
                     }
-                    else {
-                        hasRetried = true;
-                        setTimeout(onloadFunc, 10);
+                    catch(ex){
+
+                    }
+                    if(iframeIsInSPDomain){
+                        // If the frame finished loading and we can access the content docuemnt set it's probably stuck on an error page on the sharepoint domain
+                        if(hasRetried) {
+                            this.corsproxyFailure();
+                        }
+                        else {
+                            hasRetried = true;
+                            setTimeout(onloadFunc, 10);
+                        }
                     }
                 }
             };
@@ -63,8 +72,11 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
         return window["WizdomCorsProxy"]["contentWindow"];
     }
     private corsproxyFailure() {
-        window["WizdomCorsProxyState"].corsProxyFailed = true;
-        this.frameService.HandleMessage({command: "WizdomCorsProxyFailed"});
+        if(!window["WizdomCorsProxyState"].session) // only set failure, if its not already had an success
+        {
+            window["WizdomCorsProxyState"].corsProxyFailed = true;
+            this.frameService.HandleMessage({command: "WizdomCorsProxyFailed"});
+        }
     }
 
     private addEventListeners(){
@@ -90,6 +102,7 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
                 window["WizdomCorsProxyState"].allWizdomRoles = message.allWizdomRoles;
                 window["WizdomCorsProxyState"].rolesForCurrentUser = message.rolesForCurrentUser;
                 window["WizdomCorsProxyState"].upgradeInProgress = message.upgradeInProgress;
+                window["WizdomCorsProxyState"].corsProxyFailed = false;
 
             } else if (message.command === "WizdomCorsProxyFailed") {
                 this.corsproxyFailure();
