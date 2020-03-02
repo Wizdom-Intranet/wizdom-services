@@ -11,7 +11,7 @@ console.log('Karma Proxy wrapper for Karma CLI');
 const {process : processKarmaArgs} = require('karma/lib/cli');
 const karmaConfig = processKarmaArgs();
 
-const karmaProxyConfigFile = resolve('./karma.proxy.js');
+const karmaProxyConfigFile = resolve(__dirname + '/karma.proxy.js');
 var upstreamProxyServerFactory = require(karmaProxyConfigFile);
 const proxyHostnameOption = null
 const proxyAddressOption = null;

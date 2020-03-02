@@ -6,7 +6,7 @@ module.exports = function (config) {
         files: [
             //'test/**/*.js'  
             {
-                pattern: resolve('./tests/test.js'),
+                pattern: resolve(__dirname + '/tests/*.js'),
                 type: 'module',
                 included: true,
                 served: true
