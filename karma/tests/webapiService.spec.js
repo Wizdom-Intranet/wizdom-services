@@ -14,37 +14,53 @@ var pageContext = {
     }
 };
 
-function clearContext(){
-    // remove all global  variables, localstorage and iframes related to wizdom
-    Object
-        .keys(window)
-        .filter(k=>k.indexOf("Wizdom")==0)
-        .map(key=>delete window[key]);
 
-    Object
-        .keys(window.localStorage)
-        .filter(k=>k.toLowerCase().indexOf("wiz")==0)
-        .map(key=>window.localStorage.removeItem(key))
-
-    var iframes = document.querySelectorAll("iframe[src*='CorsProxy']");
-    for(var i=0;i<iframes.length;i++)
-        iframes[i].remove();
-
-    if(window.clock)
-    {
-        window.clock.restore();
-        delete window.clock;
-    }
-
-    window.addEventListener('message', (e)=>{
-        e.preventDefault();
-        e.stopImmediatePropagation();
-    });
-}
 
 describe('Wizdom WebApi service', () => {
+    // karma uses the same iframe to run all the tests. Therefor we need to clean up after each run.
+    // we override window.addEventListener, so we can remove all postmessage events after each run
+    // also we remove all our iframe, global variables and values in localStorage
+    beforeEach(function(){
+        window["orgAddEventListener"] = window.addEventListener;
+        window["messageListners"] = [];
+        window.addEventListener = function(){
+            if(arguments[0] == "message")
+                window["messageListners"].push(arguments[1]);
+            window["orgAddEventListener"].call(this, ...arguments);
+        };
+    });
+    afterEach(function(){
+        if(window["messageListners"]) {
+            window["messageListners"].map(listner=>window.removeEventListener("message", listner));
+        }
+
+        if(window["orgAddEventListener"])
+        {
+            window.addEventListener = window["orgAddEventListener"];
+        }
+
+        Object
+            .keys(window)
+            .filter(k=>k.indexOf("Wizdom")==0)
+            .map(key=>delete window[key]);
+
+        Object
+            .keys(window.localStorage)
+            .filter(k=>k.toLowerCase().indexOf("wiz")==0)
+            .map(key=>window.localStorage.removeItem(key))
+
+        var iframes = document.querySelectorAll("iframe[src*='CorsProxy']");
+        for(var i=0;i<iframes.length;i++)
+            iframes[i].remove();
+
+        if(window.clock)
+        {
+            window.clock.restore();
+            delete window.clock;
+        }
+    });
+
     it('should be able to make requests, if appredirect and corsproxy is working correctly', async function () {
-        clearContext();
         await fetch("/config", {
             method:"POST",
             headers: {
@@ -90,7 +106,6 @@ describe('Wizdom WebApi service', () => {
     // });
 
     it('should set WizdomWebApiServiceState.corsProxyFailed to true, if the corsproxy sends "Initialization failed"', async function () {
-        clearContext();
         await fetch("/config", {
             method:"POST",
             headers: {
@@ -113,7 +128,6 @@ describe('Wizdom WebApi service', () => {
         });
     });
     it('should set WizdomWebApiServiceState.corsProxyFailed to true, if the corsproxy shows an errorpage, instead of a correctly rendered succcess or init failed page', async function () {
-        clearContext();
         await fetch("/config", {
             method:"POST",
             headers: {
@@ -136,7 +150,6 @@ describe('Wizdom WebApi service', () => {
         });
     });
     it('should automatically renew the token, when its about to expire', async function(){
-        clearContext();
         await fetch("/config", {
             method:"POST",
             headers: {

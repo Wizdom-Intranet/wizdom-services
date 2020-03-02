@@ -40,19 +40,19 @@ const configMiddleware = async (ctx, next)=>{
 
 const corsProxyMiddleware = async (ctx, next) => {
     ctx.body = contentCorsProxy; //fs.readFileSync(resolve(__dirname + "\\mocks\\corsproxy.html"), 'utf8').toString();
-    console.log("cors proxy");
+    // console.log("cors proxy");
 }
 
 const appRedirectMiddleware = async (ctx, next) => {
     ctx.body = contentAppRedirect; // fs.readFileSync(resolve(__dirname + "\\mocks\\appredirect.html"), 'utf8').toString();
-    console.log("app redirect");
+    // console.log("app redirect");
 }
 
 const distMiddleware = async (ctx, next) => {
     await next()
     var content = await getAsString(ctx.body);
     ctx.body = content.substring(62);
-    console.log("Requesting dist", ctx.request.url);
+    // console.log("Requesting dist", ctx.request.url);
 };
 
 const getAsString = async (value) => {

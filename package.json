@@ -11,7 +11,8 @@
         "watch": "rollup -c --watch",
         "test": "jest",
         "test:watch": "jest --watch",
-        "test:browser": "node karma/index.js start karma/karma.conf.js"
+        "testbrowser": "node karma/index.js start karma/karma.conf.js --single-run",
+        "testbrowser:watch": "node karma/index.js start karma/karma.conf.js"
     },
     "author": "Wizdom A/S",
     "license": "MIT",
