@@ -84,8 +84,9 @@ export class WizdomWebApiService implements IWizdomWebApiService {
         else if(!this.state.corsProxyFailed) {
             console.info("Sending request to: " + url);
             var fullUrl = url + (url.indexOf("?") > 0 ? "&" : "?");
+            const isExternalRequest = (fullUrl.includes('://')) ? true : false;
             fullUrl += "SPHostUrl=" + this.spHostUrl;
-            if(fullUrl[0] != "/")
+            if(!isExternalRequest && fullUrl[0] != "/")
                 fullUrl = "/" + fullUrl;
 
             this.state.requestIndex++;
@@ -104,7 +105,8 @@ export class WizdomWebApiService implements IWizdomWebApiService {
                     method: method,
                     url: fullUrl,
                     requestIndex: this.state.requestIndex,
-                    data: data
+                    data: data,
+                    isExternalRequest
                 });
             }
             else
