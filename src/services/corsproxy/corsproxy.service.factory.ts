@@ -31,30 +31,29 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
             
             var appUrl = this.endsWith(this.context.appUrl, "/") ? this.context.appUrl : this.context.appUrl + "/";
             corsProxyIframe.src = this.spHostUrl + "/_layouts/15/appredirect.aspx?client_id=" + this.context.clientId + "&redirect_uri=" + appUrl + "Base/WizdomCorsProxy.aspx?{StandardTokens}" + "%26isModern=true%26userLoginName=" + encodeURIComponent(this.userLoginName);            
-
-            let appredirectDone = false;
+            
             let hasRetried = false;
             let onloadFunc = (ev: Event) => {
-                
-                if(!appredirectDone) {
-                    appredirectDone = true;
+                var iframeIsInSPDomain = false;
+                try {
+                    iframeIsInSPDomain = !!corsProxyIframe.contentDocument;
                 }
-                else if(corsProxyIframe.contentDocument) {
-                    // If the frame finished loading and we can access the content docuemnt set it's probably stuck on an error page on the sharepoint domain
-                    if(hasRetried) {
-                        this.corsproxyFailure();
-                    }
-                    else {
-                        hasRetried = true;
-                        setTimeout(onloadFunc, 10);
+                catch(ex) {
+                }
+                if(iframeIsInSPDomain){
+                    if(!/appredirect/ig.test(corsProxyIframe.contentWindow.location.href)) {
+                        // If the frame finished loading and we can access the content docuemnt set it's probably stuck on an error page on the sharepoint domain
+                        if(hasRetried) {
+                            this.corsproxyFailure();
+                        }
+                        else {
+                            hasRetried = true;
+                            setTimeout(onloadFunc, 1000);
+                        }
                     }
                 }
             };
             corsProxyIframe.onload = onloadFunc;
-            
-            corsProxyIframe.onerror = (ev: Event) => {
-                this.corsproxyFailure();
-            }
 
             document.body.appendChild(corsProxyIframe);
        
@@ -63,6 +62,7 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
         return window["WizdomCorsProxy"]["contentWindow"];
     }
     private corsproxyFailure() {
+        console.error("Corsproxy failed to initialize");
         window["WizdomCorsProxyState"].corsProxyFailed = true;
         this.frameService.HandleMessage({command: "WizdomCorsProxyFailed"});
     }
@@ -90,6 +90,7 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
                 window["WizdomCorsProxyState"].allWizdomRoles = message.allWizdomRoles;
                 window["WizdomCorsProxyState"].rolesForCurrentUser = message.rolesForCurrentUser;
                 window["WizdomCorsProxyState"].upgradeInProgress = message.upgradeInProgress;
+                window["WizdomCorsProxyState"].corsProxyFailed = false;
 
             } else if (message.command === "WizdomCorsProxyFailed") {
                 this.corsproxyFailure();

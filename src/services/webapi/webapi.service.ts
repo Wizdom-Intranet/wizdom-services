@@ -18,6 +18,7 @@ export class WizdomWebApiService implements IWizdomWebApiService {
         this.state.corsProxyFailed = false;      
         this.corsProxy.AddHandler("WizdomCorsProxySuccess", (message) => {
             this.state.corsProxyReady = true;
+            this.state.corsProxyFailed = false;
             for (var i = 0; i < this.state.deferredQueue.length; i++) {
                 this.makeRequest.apply(this, this.state.deferredQueue[i]);
             }
@@ -57,7 +58,7 @@ export class WizdomWebApiService implements IWizdomWebApiService {
                             this.corsProxy = this.corsProxyFac.GetOrCreate(true);
                             this.initCorsProxyMessageHandling();
                         }
-                    }, 60*1000);
+                    }, 60 * 1000);
                 }
             } 
 
@@ -77,7 +78,7 @@ export class WizdomWebApiService implements IWizdomWebApiService {
         else if(!this.state.corsProxyFailed) {
             console.info("Sending request to: " + url);
             var fullUrl = url + (url.indexOf("?") > 0 ? "&" : "?");
-            const isExternalRequest = (fullUrl.includes('://')) ? true : false;
+            const isExternalRequest = fullUrl.indexOf('://') < 10 && fullUrl.indexOf('://') >= 0;
             fullUrl += "SPHostUrl=" + this.spHostUrl;
             if(!isExternalRequest && fullUrl[0] != "/")
                 fullUrl = "/" + fullUrl;
