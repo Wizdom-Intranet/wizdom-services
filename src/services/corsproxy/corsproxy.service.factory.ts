@@ -54,10 +54,6 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
                 }
             };
             corsProxyIframe.onload = onloadFunc;
-            
-            corsProxyIframe.onerror = (ev: Event) => {
-                this.corsproxyFailure();                
-            }
 
             document.body.appendChild(corsProxyIframe);
        
