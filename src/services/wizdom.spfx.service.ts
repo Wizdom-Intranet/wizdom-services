@@ -12,6 +12,7 @@ import { IWizdomCorsProxyService } from "./corsproxy/corsproxy.interfaces";
 import { WizdomCorsProxyServiceFactory } from "./corsproxy/corsproxy.service.factory";
 import { IWizdomDeveloperMode } from "../shared/developermode.interface";
 import { LocationWrapper } from "../shared/location.wrapper";
+import { WizdomLanguageUpdate } from "./wizdom.language.update";
 
 export class WizdomSpfxServices {
     public Cache: IWizdomCache;
@@ -35,7 +36,7 @@ export class WizdomSpfxServices {
             var wizdomdevelopermode: IWizdomDeveloperMode;
             if(developmentmodeQueryString != null && developmentmodeQueryString.toLowerCase() != "false"){
                 try{
-                    wizdomdevelopermode = JSON.parse(developmentmodeQueryString) as IWizdomDeveloperMode;
+                    wizdomdevelopermode = JSON.parse(developmentmodeQueryString) as IWizdomDeveloperMode;                    
                 } catch(ex){
                     console.error("Invalid developermode", ex);                    
                 }
@@ -64,7 +65,13 @@ export class WizdomSpfxServices {
             this.WizdomCorsProxyService = wizdomCorsProxyServiceFactory.GetOrCreate();                        
             var wizdomWebApiServiceFactory = new WizdomWebApiServiceFactory(wizdomCorsProxyServiceFactory, this.spContext.pageContext.site.absoluteUrl);
             this.WizdomWebApiService = wizdomWebApiServiceFactory.Create();
-            
+                        
+            this.WizdomCorsProxyService.AddHandler("WizdomCorsProxySuccess", () => {
+                // When cors proxy initialized successfully
+                var wizdomLanguageUpdate = new WizdomLanguageUpdate(new SpfxHttpClient(this.spContext.httpClient), this.WizdomWebApiService, this.Cache);
+                wizdomLanguageUpdate.UpdateIfNeededAsync(this.spContext.web.absoluteUrl, this.WizdomCorsProxyService.corsProxyState.currentUserLanguage);
+            });
+
             await Promise.all([translationServicePromise, configurationPromise]);
         } catch(ex) {
             if(console.exception != null)

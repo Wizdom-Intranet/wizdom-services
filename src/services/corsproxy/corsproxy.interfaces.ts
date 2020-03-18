@@ -17,8 +17,9 @@ export interface IWizdomCorsProxySharedState {
     session: string;
     msLeftOnToken: Number;
     allWizdomRoles: Array<string>;
-    rolesForCurrentUser: Array<string>;
+    rolesForCurrentUser: Array<string>;    
     upgradeInProgress: boolean;
+    currentUserLanguage: string;
     corsProxyFailed: boolean;
 }
 
