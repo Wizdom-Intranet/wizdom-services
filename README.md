@@ -179,3 +179,6 @@ Set-PnPPropertyBagValue -Key "wizdom.properties" -Value '{"appUrl":"https://url.
 $site.Update()
 $site.Context.ExecuteQuery()
 ```
+
+# User language
+Once every 12 hours wizdom-service check if the current users preferred SharePoint UI language match the one stored in Wizdom. If they don't match it will automatically be updated in Wizdom.
