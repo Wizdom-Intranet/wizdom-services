@@ -90,6 +90,7 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
                 window["WizdomCorsProxyState"].allWizdomRoles = message.allWizdomRoles;
                 window["WizdomCorsProxyState"].rolesForCurrentUser = message.rolesForCurrentUser;
                 window["WizdomCorsProxyState"].upgradeInProgress = message.upgradeInProgress;
+                window["WizdomCorsProxyState"].currentUserLanguage = message.currentUserLanguage;
                 window["WizdomCorsProxyState"].corsProxyFailed = false;
 
             } else if (message.command === "WizdomCorsProxyFailed") {
@@ -111,6 +112,7 @@ export class WizdomCorsProxyServiceFactory implements IWizdomCorsProxyServiceFac
             allWizdomRoles: [], 
             rolesForCurrentUser: [], 
             upgradeInProgress: false,
+            currentUserLanguage: "",
             corsProxyFailed: false
         } as IWizdomCorsProxySharedState; 
     }
