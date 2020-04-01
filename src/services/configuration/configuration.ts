@@ -12,7 +12,12 @@ export async function GetWizdomConfiguration(httpClient : any, context : IWizdom
         return httpClient.get(configurationUrl).then(result => {            
             return result.text().then(content => {
                 content = content.substring(content.indexOf("{"), content.lastIndexOf("}") + 1); // remove all the angular stuff and only save the json
-                return JSON.parse(content);
+                try {
+                    return JSON.parse(content);
+                }
+                catch {
+                    return null;
+                }
             });
         });
     }, expireIn, refreshIn, refreshDelayIn).then((configuration:any) => {          
