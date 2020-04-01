@@ -15,8 +15,6 @@ export class WizdomAADWebApiService implements IWizdomWebApiService {
             console.info(`[WizdomWebApi] Sending ${method} request to: ${url}`);
             
             const isExternalRequest = url.indexOf('://') < 10 && url.indexOf('://') >= 0;
-            if(!isExternalRequest && url[0] != "/")
-                url = "/" + url;
 
             let parsedUrl = new URL(isExternalRequest ? url : this.appUrl + url);
 

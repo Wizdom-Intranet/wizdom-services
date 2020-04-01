@@ -87,10 +87,10 @@ export class WizdomSpfxServices {
                 window["WizdomCorsProxyState"] = window["WizdomCorsProxyState"] || {            
                     session: "", 
                     msLeftOnToken: 0, 
-                    allWizdomRoles: this.WizdomContext.serverContext.allWizdomRoles, 
-                    rolesForCurrentUser: this.WizdomContext.serverContext.rolesForCurrentUser, 
+                    allWizdomRoles: this.WizdomContext?.serverContext?.allWizdomRoles, 
+                    rolesForCurrentUser: this.WizdomContext?.serverContext?.rolesForCurrentUser, 
                     upgradeInProgress: false,
-                    currentUserLanguage: this.WizdomContext.serverContext.currentUserLanguage,
+                    currentUserLanguage: this.WizdomContext?.serverContext?.currentUserLanguage,
                     corsProxyFailed: false
                 } as IWizdomCorsProxySharedState;
 

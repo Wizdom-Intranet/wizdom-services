@@ -84,8 +84,14 @@ export class WizdomContextFactory {
                     wizdomInfo.appUrl = this.storageEntityContext.appUrl || "https://wtsaas.azurewebsites.net/";
                 }
                 
+                // Append a / to the end of the urls if it's not there
+                this.storageEntityContext.appUrl += this.storageEntityContext.appUrl.indexOf("/", -1) !== -1 ? "" : "/";
+                this.storageEntityContext.blobUrl += this.storageEntityContext.blobUrl.indexOf("/", -1) !== -1 ? "" : "/";
+
                 this.storageEntityContext = {...this.storageEntityContext, ...wizdomInfo};
             }
+
+            
 
             return this.storageEntityContext;
 
