@@ -28,7 +28,7 @@ export class WizdomTranslationServiceFactory {
             var jsonStartIndex = content.indexOf("{");
             var jsonEndIndex = content.indexOf("}}") + 2;
             content = content.substr(jsonStartIndex, jsonEndIndex - jsonStartIndex); // remove all the angular stuff and only save the json
-            var translations = JSON.parse(content)[language.toLowerCase()];            
+            let translations: any = JSON.parse(content)[language.toLowerCase()];            
             return translations;
         }, expireIn, refreshIn, refreshDelayIn)
         .then((translations) => {

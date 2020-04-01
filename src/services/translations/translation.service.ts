@@ -3,7 +3,7 @@ import { IWizdomDeveloperMode } from "../../shared/developermode.interface";
 
 export class WizdomTranslationService implements IWizdomTranslationService {
     
-    constructor(private translations: object, private wizdomdevelopermode: IWizdomDeveloperMode) {    
+    constructor(private translations: any, private wizdomdevelopermode: IWizdomDeveloperMode) {    
     }
 
     translate(key: string): string {        
