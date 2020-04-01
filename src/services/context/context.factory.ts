@@ -31,12 +31,6 @@ export class WizdomContextFactory {
                     if(json.Value)
                     {
                         var context: IWizdomContext = JSON.parse(json.Value);
-                        // ensure tailing / for app- and bloburl
-                        if (context.blobUrl.substr(-1) != "/")
-                            context.blobUrl = context.blobUrl + "/";
-                        if (context.appUrl.substr(-1) != "/")
-                            context.appUrl = context.appUrl + "/";
-    
                         this.storageEntityContext = context;
                     }
                 });
@@ -47,12 +41,6 @@ export class WizdomContextFactory {
                 return result.json().then((json) => {
                     if (json.wizdom_x002e_properties) {
                         var context: IWizdomContext = JSON.parse(json.wizdom_x002e_properties);
-                        // ensure tailing / for app- and bloburl
-                        if (context.blobUrl.substr(-1) != "/")
-                            context.blobUrl = context.blobUrl + "/";
-                        if (context.appUrl.substr(-1) != "/")
-                            context.appUrl = context.appUrl + "/";
-
                         this.allPropertiesContext = context;
                     }
                 });
@@ -87,9 +75,12 @@ export class WizdomContextFactory {
                 this.storageEntityContext = {...this.storageEntityContext, ...wizdomInfo};
             }
 
-            // Append a / to the end of the urls if it's not there
-            this.storageEntityContext.appUrl += this.storageEntityContext.appUrl.indexOf("/", -1) !== -1 ? "" : "/";
-            this.storageEntityContext.blobUrl += this.storageEntityContext.blobUrl.indexOf("/", -1) !== -1 ? "" : "/";
+            // ensure tailing / for app- and bloburl
+            if (this.storageEntityContext.blobUrl.substr(-1) != "/")
+                this.storageEntityContext.blobUrl = this.storageEntityContext.blobUrl + "/";
+            if (this.storageEntityContext.appUrl.substr(-1) != "/")
+                this.storageEntityContext.appUrl = this.storageEntityContext.appUrl + "/";
+
 
             return this.storageEntityContext;
 

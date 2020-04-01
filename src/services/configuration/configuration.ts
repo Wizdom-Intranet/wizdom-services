@@ -15,7 +15,8 @@ export async function GetWizdomConfiguration(httpClient : any, context : IWizdom
                 try {
                     return JSON.parse(content);
                 }
-                catch {
+                catch(ex) {
+                    console.error("Failed parsing Wizdom configuration", ex)
                     return null;
                 }
             });

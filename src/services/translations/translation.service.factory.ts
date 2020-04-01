@@ -32,7 +32,8 @@ export class WizdomTranslationServiceFactory {
                 let translations: any = JSON.parse(content)[language.toLowerCase()];            
                 return translations;
             }
-            catch {
+            catch(ex) {
+                console.error("Failed parsing Wizdom translations", ex)
                 return null;
             }
         }, expireIn, refreshIn, refreshDelayIn)
