@@ -30,7 +30,14 @@ export class WizdomAADWebApiService implements IWizdomWebApiService {
                         this.state.requestRateLimitCounter--;
                     }, requestRateLimitTimeout);
                 }
-                return await (await this.httpClient.fetch(parsedUrl.toString(), AadHttpClient.configurations.v1, {method: method, body: JSON.stringify(data)})).json()
+                return await (await this.httpClient.fetch(parsedUrl.toString(), AadHttpClient.configurations.v1, {
+                    method: method, 
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })).text().then(text => text ? JSON.parse(text) : null);
             }
             else
             {
