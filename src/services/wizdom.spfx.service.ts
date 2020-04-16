@@ -15,6 +15,7 @@ import { IWizdomDeveloperMode } from "../shared/developermode.interface";
 import { LocationWrapper } from "../shared/location.wrapper";
 import { WizdomLanguageUpdate } from "./wizdom.language.update";
 import { AadHttpClient } from "@microsoft/sp-http";
+import { WizdomCorsProxyService } from "./corsproxy/corsproxy.service";
 
 export class WizdomSpfxServices {
     public Cache: IWizdomCache;
@@ -78,12 +79,14 @@ export class WizdomSpfxServices {
             
                 // When cors proxy initialized successfully
                 this.WizdomCorsProxyService.AddHandler("WizdomCorsProxySuccess", updateWizdomLanguage);
+
+                this.WizdomContext.serverContext = {
+                    allWizdomRoles: window["WizdomCorsProxyState"].allWizdomRoles,
+                    rolesForCurrentUser: window["WizdomCorsProxyState"].rolesForCurrentUser,
+                    currentUserLanguage: window["WizdomCorsProxyState"].currentUserLanguage,
+                }
             }
-
-            var wizdomWebApiServiceFactory = new WizdomWebApiServiceFactory(wizdomCorsProxyServiceFactory, this.WizdomContext, this.spContext, aadHttpClientPromise);
-            this.WizdomWebApiService = await wizdomWebApiServiceFactory.Create();
-
-            if(this.WizdomContext.isWizdomSaaS) {
+            else {
                 window["WizdomCorsProxyState"] = window["WizdomCorsProxyState"] || {            
                     session: "", 
                     msLeftOnToken: 0, 
@@ -95,8 +98,12 @@ export class WizdomSpfxServices {
                 } as IWizdomCorsProxySharedState;
 
                 updateWizdomLanguage();
+
+                this.WizdomCorsProxyService = new WizdomCorsProxyService(() => {}, window["WizdomCorsProxyState"]);
             }
-            
+
+            var wizdomWebApiServiceFactory = new WizdomWebApiServiceFactory(wizdomCorsProxyServiceFactory, this.WizdomContext, this.spContext, aadHttpClientPromise);
+            this.WizdomWebApiService = await wizdomWebApiServiceFactory.Create();
 
             await Promise.all([translationServicePromise, configurationPromise]);
         } catch(ex) {
