@@ -58,7 +58,7 @@ describe("WizdomContext", () => {
                 })
             }
         }
-        var sut = new WizdomContextFactory(getSpHttpClient(mockData), getCacheMock(), null);
+        var sut = new WizdomContextFactory(getSpHttpClient(mockData), getCacheMock(), null, null);
         var context = await sut.GetWizdomContextAsync("http://sharepoint.site/absolute/url/");
         expect(context.blobUrl).toEqual("http://blob/site/");
         expect(context.appUrl).toEqual("http://app/site/");
@@ -75,7 +75,7 @@ describe("WizdomContext", () => {
             },
             siteProperties:{}
         }
-        var sut = new WizdomContextFactory(getSpHttpClient(mockData), getCacheMock(), null);
+        var sut = new WizdomContextFactory(getSpHttpClient(mockData), getCacheMock(), null, null);
         var context = await sut.GetWizdomContextAsync("http://sharepoint.site/absolute/url/");
         expect(context.blobUrl).toEqual("http://blob/tenant/");
         expect(context.appUrl).toEqual("http://app/tenant/");
@@ -92,7 +92,7 @@ describe("WizdomContext", () => {
                 })
             }
         }
-        var sut = new WizdomContextFactory(getSpHttpClient(mockData), getCacheMock(), null);
+        var sut = new WizdomContextFactory(getSpHttpClient(mockData), getCacheMock(), null, null);
         var context = await sut.GetWizdomContextAsync("http://sharepoint.site/absolute/url/");
         expect(context.blobUrl).toEqual("http://blob/site/");
         expect(context.appUrl).toEqual("http://app/site/");
@@ -115,7 +115,7 @@ describe("WizdomContext", () => {
                 })
             }
         }
-        var sut = new WizdomContextFactory(getSpHttpClient(mockData), getCacheMock(), null);
+        var sut = new WizdomContextFactory(getSpHttpClient(mockData), getCacheMock(), null, null);
         var context = await sut.GetWizdomContextAsync("http://sharepoint.site/absolute/url/");
         expect(context.blobUrl).toEqual("http://blob/site/");
         expect(context.appUrl).toEqual("http://app/site/");
@@ -147,7 +147,7 @@ describe("WizdomContext", () => {
             }
         } as IWizdomDeveloperMode;
 
-        var sut = new WizdomContextFactory(getSpHttpClient(mockData), getCacheMock(), developerMode);
+        var sut = new WizdomContextFactory(getSpHttpClient(mockData), getCacheMock(), developerMode, null);
         var context = await sut.GetWizdomContextAsync("http://sharepoint.site/absolute/url/");
         expect(context.blobUrl).toEqual("http://blob/developermode/");
         expect(context.appUrl).toEqual("http://app/developermode/");
