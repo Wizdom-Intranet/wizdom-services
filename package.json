@@ -24,12 +24,17 @@
         "tslib": "^1.11.1"
     },
     "devDependencies": {
+        "@babel/core": "^7.9.0",
+        "@babel/preset-env": "^7.9.5",
         "@types/chai": "^4.1.7",
         "@types/jest": "^24.0.13",
         "@types/mocha": "^5.2.6",
-        "jest": "^24.8.0",
+        "babel-core": "^7.0.0-bridge.0",
+        "babel-jest": "^25.3.0",
+        "jest": "^25.3.0",
         "jest-serializer-vue": "^2.0.2",
         "jest-transform-stub": "^2.0.0",
+        "regenerator-runtime": "^0.13.5",
         "rollup": "^0.50.0",
         "rollup-plugin-cpy": "^1.1.0",
         "rollup-plugin-generate-package-json": "^2.0.1",
