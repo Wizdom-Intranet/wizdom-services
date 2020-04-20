@@ -15,8 +15,7 @@ export class WizdomWebApiServiceFactory {
         if(window["WizdomWebApiService"]) {
             return window["WizdomWebApiService"];
         }
-
-        if(this.wizdomContext.isWizdomSaaS) {
+        if(this.wizdomContext && this.wizdomContext.isWizdomSaaS) {
             return window["WizdomWebApiService"] = new WizdomAADWebApiService(this.spHostUrl, this.wizdomContext.appUrl, this.getWebApiSharedState(), await this.aadHttpClientPromise);
         }
         else {

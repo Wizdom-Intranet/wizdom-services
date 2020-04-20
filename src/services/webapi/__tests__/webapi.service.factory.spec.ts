@@ -18,8 +18,8 @@ describe("WizdomWebApiServiceFactory", () => {
         webapiServiceFactory = new WizdomWebApiServiceFactory(fakeCorsProxyFactory, null, {pageContext: {site: {absoluteUrl:"http://sharepointHostUrl.com"}}}, null);
     });
 
-    it("should expose WizdomWebApiService on window object", () => {
-        var webapiService = webapiServiceFactory.Create();
+    it("should expose WizdomWebApiService on window object", async () => {
+        var webapiService = await webapiServiceFactory.Create();
 
         expect(webapiService).not.toBeNull();
         expect(webapiService).toBe(window["WizdomWebApiService"]);
