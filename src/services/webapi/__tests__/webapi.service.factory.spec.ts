@@ -15,7 +15,7 @@ describe("WizdomWebApiServiceFactory", () => {
         } as IWizdomCorsProxyService
 
         var fakeCorsProxyFactory = { GetOrCreate(){ return corsProxy; } } as IWizdomCorsProxyServiceFactory;
-        webapiServiceFactory = new WizdomWebApiServiceFactory(fakeCorsProxyFactory, null, {pageContext: {site: {absoluteUrl:"http://sharepointHostUrl.com"}}}, null);
+        webapiServiceFactory = new WizdomWebApiServiceFactory(fakeCorsProxyFactory, null, "http://sharepointHostUrl.com", null);
     });
 
     it("should expose WizdomWebApiService on window object", async () => {
