@@ -28,8 +28,14 @@ export class WizdomTranslationServiceFactory {
             var jsonStartIndex = content.indexOf("{");
             var jsonEndIndex = content.indexOf("}}") + 2;
             content = content.substr(jsonStartIndex, jsonEndIndex - jsonStartIndex); // remove all the angular stuff and only save the json
-            var translations = JSON.parse(content)[language.toLowerCase()];            
-            return translations;
+            try{
+                let translations: any = JSON.parse(content)[language.toLowerCase()];            
+                return translations;
+            }
+            catch(ex) {
+                console.error("Failed parsing Wizdom translations", ex)
+                return null;
+            }
         }, expireIn, refreshIn, refreshDelayIn)
         .then((translations) => {
             // Store a global variable

@@ -10,8 +10,12 @@ module.exports = {
     transform: {
       '^.+\\.vue$': 'vue-jest',
       '.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$': 'jest-transform-stub',
-      '^.+\\.tsx?$': 'ts-jest'
+      '^.+\\.tsx?$': 'ts-jest',
+      "^.+\\.js?$": "babel-jest"
     },
+    transformIgnorePatterns: [
+      "node_modules/(?!@microsoft/sp-http|@microsoft/sp-core-library|@microsoft/sp-diagnostics)"
+    ],
     moduleNameMapper: {
       '^@/(.*)$': '<rootDir>/src/$1'
     },

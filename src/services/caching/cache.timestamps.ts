@@ -79,7 +79,8 @@ export class WizdomTimestamps implements IWizdomTimestamps, IWizdomTimestampsRes
     return this.GetTimestampsPromise()
       .then(json => {
         let result = 0;
-        let keys = [key, "timestampconfiguration", ...this.getGlobalMappings()[key]];
+        let globalMappings = this.getGlobalMappings()[key] ?? [];
+        let keys = [key, "timestampconfiguration", ...globalMappings];
         keys.forEach(k => {
           if (k && json[k]) result = Math.max(result, json[k]);
         });
