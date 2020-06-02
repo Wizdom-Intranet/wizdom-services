@@ -15,7 +15,7 @@ export class WizdomContextFactory {
         serverContext: null,
     };
     private allPropertiesContext: IWizdomContext
-    constructor(private spHttpClient: IHttpClient, private cache: IWizdomCache, private wizdomdevelopermode: IWizdomDeveloperMode, private aadHttpClientPromise: Promise<AadHttpClient>) {
+    constructor(private spHttpClient: IHttpClient, private cache: IWizdomCache, private wizdomdevelopermode: IWizdomDeveloperMode, private aadHttpClientFactory: (clientId)=>Promise<AadHttpClient>) {
 
     }
 
@@ -59,17 +59,20 @@ export class WizdomContextFactory {
             }
 
             if(this.storageEntityContext.isWizdomSaaS || this.wizdomdevelopermode?.wizdomContext?.isWizdomSaaS) {
-
                 // Make sure to use the appUrl from wizdomdevelopermode if it's there, otherwise default down the chain till we find something
                 // Use local variable to avoid caching the developermode appUrl
-                let appUrl = this.wizdomdevelopermode?.wizdomContext?.appUrl ?? (this.storageEntityContext.appUrl || "https://wtsaas.azurewebsites.net/")
-
-                let httpClient: AadHttpClient = await this.aadHttpClientPromise;
+                let appUrl = this.wizdomdevelopermode?.wizdomContext?.appUrl ?? (this.storageEntityContext.appUrl)
+                var clientId = this.wizdomdevelopermode?.wizdomContext?.clientId ?? this.storageEntityContext.clientId
+                if(!clientId || clientId == "")
+                {
+                    throw "ClientID is missing from tenant properties";
+                }
+                let httpClient: AadHttpClient = await this.aadHttpClientFactory(clientId);
                 let wizdomInfo: IWizdomContext = await (await httpClient.fetch(appUrl + "api/wizdom/365/context", AadHttpClient.configurations.v1, {method: "GET"})).json()
-                
+
                 // Make sure to cache the correct appUrl even if we get something else from the server
                 if(this.wizdomdevelopermode?.wizdomContext?.appUrl) {
-                    wizdomInfo.appUrl = this.storageEntityContext.appUrl || "https://wtsaas.azurewebsites.net/";
+                    wizdomInfo.appUrl = this.storageEntityContext.appUrl;
                 }
             
                 this.storageEntityContext = {...this.storageEntityContext, ...wizdomInfo};

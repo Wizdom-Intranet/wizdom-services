@@ -44,13 +44,13 @@ export class WizdomSpfxServices {
                     console.error("Invalid developermode", ex);                    
                 }
             }
-
-            let aadHttpClientPromise: Promise<AadHttpClient> = this.spContext.aadHttpClientFactory.getClient("402cbaeb-c52a-43b6-b886-4ad1c44cab6a");
+            // 402cbaeb-c52a-43b6-b886-4ad1c44cab6a
+            let aadHttpClientFactory = (clientId)=>this.spContext.aadHttpClientFactory.getClient(clientId);
 
             // Initialize all services
             this.Cache = new WizdomCache(wizdomdevelopermode, locationWrapper, new SpfxSpHttpClient(this.spContext.spHttpClient), this.spContext.pageContext.site.absoluteUrl);
 
-            var contextFactory = new WizdomContextFactory(new SpfxSpHttpClient(this.spContext.spHttpClient), this.Cache, wizdomdevelopermode, aadHttpClientPromise);
+            var contextFactory = new WizdomContextFactory(new SpfxSpHttpClient(this.spContext.spHttpClient), this.Cache, wizdomdevelopermode, aadHttpClientFactory);
             this.WizdomContext = await contextFactory.GetWizdomContextAsync(this.spContext.pageContext.site.absoluteUrl);    
 
             var language = this.spContext.pageContext.cultureInfo.currentUICultureName;
@@ -102,7 +102,7 @@ export class WizdomSpfxServices {
                 this.WizdomCorsProxyService = new WizdomCorsProxyService(() => {}, window["WizdomCorsProxyState"]);
             }
 
-            var wizdomWebApiServiceFactory = new WizdomWebApiServiceFactory(wizdomCorsProxyServiceFactory, this.WizdomContext, this.spContext, aadHttpClientPromise);
+            var wizdomWebApiServiceFactory = new WizdomWebApiServiceFactory(wizdomCorsProxyServiceFactory, this.WizdomContext, this.spContext.pageContext.site.absoluteUrl, aadHttpClientFactory);
             this.WizdomWebApiService = await wizdomWebApiServiceFactory.Create();
 
             await Promise.all([translationServicePromise, configurationPromise]);

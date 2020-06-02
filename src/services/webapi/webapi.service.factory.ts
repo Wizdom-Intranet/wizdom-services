@@ -6,9 +6,7 @@ import { WizdomAADWebApiService } from "./aad-webapi.service";
 import { AadHttpClient } from "@microsoft/sp-http";
 
 export class WizdomWebApiServiceFactory {
-    private spHostUrl: string;
-    constructor(private corsProxyFactory: IWizdomCorsProxyServiceFactory, private wizdomContext: IWizdomContext, private spContext: any, private aadHttpClientPromise: Promise<AadHttpClient>) {                
-        this.spHostUrl = this.spContext.pageContext.site.absoluteUrl;
+    constructor(private corsProxyFactory: IWizdomCorsProxyServiceFactory, private wizdomContext: IWizdomContext, private spHostUrl: string, private aadHttpClientFactory: (clientId)=>Promise<AadHttpClient>) {                
     }
 
     async Create() : Promise<IWizdomWebApiService> {
@@ -16,7 +14,7 @@ export class WizdomWebApiServiceFactory {
             return window["WizdomWebApiService"];
         }
         if(this.wizdomContext && this.wizdomContext.isWizdomSaaS) {
-            return window["WizdomWebApiService"] = new WizdomAADWebApiService(this.spHostUrl, this.wizdomContext.appUrl, this.getWebApiSharedState(), await this.aadHttpClientPromise);
+            return window["WizdomWebApiService"] = new WizdomAADWebApiService(this.spHostUrl, this.wizdomContext.appUrl, this.getWebApiSharedState(), await this.aadHttpClientFactory(this.wizdomContext.clientId));
         }
         else {
             return window["WizdomWebApiService"] = new WizdomWebApiService(this.spHostUrl, this.getWebApiSharedState(), this.corsProxyFactory);
