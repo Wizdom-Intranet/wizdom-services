@@ -10,9 +10,6 @@ export class WizdomWebApiServiceFactory {
     }
 
     async Create() : Promise<IWizdomWebApiService> {
-        if(window["WizdomWebApiService"]) {
-            return window["WizdomWebApiService"];
-        }
         if(this.wizdomContext && this.wizdomContext.isWizdomSaaS) {
             return window["WizdomWebApiService"] = new WizdomAADWebApiService(this.spHostUrl, this.wizdomContext.appUrl, this.getWebApiSharedState(), await this.aadHttpClientFactory(this.wizdomContext.clientId));
         }
