@@ -30,8 +30,23 @@ export class WizdomSpfxServices {
         this.spContext = spContext;
     }
 
-    public async InitAsync(options: any) {        
+    public async InitAsync(options: any) {  
         try {
+            if(window["WizdomCurrentSpHostUrl"] != this.spContext.pageContext.site.absoluteUrl)  {
+                // navigated to another sitecollection. Reset wizdom
+                console.log("resetting wizdom corsproxy");
+    
+                window["WizdomCorsProxyState"] = null;
+                window["WizdomCorsProxy"] = null;
+                window["WizdomWebApiService"] = null;
+                window["WizdomWebApiServiceState"] = null;
+                
+                // window["WizdomContext"] = null;
+                // window["WizdomCache"] = null;
+                // window["WizdomConfiguration"] = null;        
+            } 
+            window["WizdomCurrentSpHostUrl"] = this.spContext.pageContext.site.absoluteUrl;      
+           
             // Check for development mode            
             var locationWrapper = new LocationWrapper();
             var developmentmodeQueryString = locationWrapper.GetQueryString("wizdomdevelopermode");
