@@ -82,11 +82,11 @@ export class WizdomSpfxServices {
                 this.WizdomConfiguration = configuration;
             });
 
-            let updateWizdomLanguage = () => {
+            let updateWizdomLanguage = async () => {
+                await configurationPromise;
                 var wizdomLanguageUpdate = new WizdomLanguageUpdate(new SpfxSpHttpClient(this.spContext.spHttpClient), this.WizdomWebApiService, this.Cache);
-                wizdomLanguageUpdate.UpdateIfNeededAsync(this.spContext.pageContext.web.absoluteUrl, window["WizdomCorsProxyState"].currentUserLanguage);
+                wizdomLanguageUpdate.UpdateIfNeededAsync(this.spContext.pageContext.web.absoluteUrl, window["WizdomCorsProxyState"].currentUserLanguage, this.WizdomConfiguration);
             }
-
             let wizdomCorsProxyServiceFactory: WizdomCorsProxyServiceFactory; 
             if(!this.WizdomContext.isWizdomSaaS) {
                 wizdomCorsProxyServiceFactory = new WizdomCorsProxyServiceFactory(this.WizdomContext, this.spContext.pageContext.site.absoluteUrl, this.spContext.pageContext.user.loginName);        
