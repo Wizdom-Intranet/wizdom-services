@@ -8,7 +8,7 @@ describe("WizdomLanguageUpdate", () => {
 
     // Mock Caching    
     var mockCache = jest.fn(() => ({
-        Localstorage: jest.fn(() => ({            
+        Localstorage: jest.fn(() => ({
             ExecuteCached: jest.fn((key: string, func: Function) => {
                 return func();
             })
@@ -20,19 +20,19 @@ describe("WizdomLanguageUpdate", () => {
 
     // Fake SpHttpClient
     function getFakeSpHttpClient(mockData) {
-        var httpClientGetMock = function(url: string) {
+        var httpClientGetMock = function (url: string) {
             return Promise.resolve({
                 ok: true,
                 text: jest.fn(),
-                json: ()=> {                    
-                    if(url.indexOf("_api/SP.UserProfiles.PeopleManager/GetMyProperties")>0) // request for tenant properties
-                        return Promise.resolve(mockData);                
+                json: () => {
+                    if (url.indexOf("_api/SP.UserProfiles.PeopleManager/GetMyProperties") > 0) // request for tenant properties
+                        return Promise.resolve(mockData);
                     return null; // ignore all other requests
                 },
             } as IHttpClientResponse);
         };
         const HttpClientMockImplementation = jest.fn<IHttpClient, any>(() => ({
-            get: httpClientGetMock            
+            get: httpClientGetMock
         }));
         return new HttpClientMockImplementation();
     }
@@ -42,32 +42,48 @@ describe("WizdomLanguageUpdate", () => {
     beforeEach(() => {
         mockWebApiService = {
             Get: jest.fn(),
-            Delete: jest.fn(),                
+            Delete: jest.fn(),
             Post: jest.fn(),
             Put: jest.fn()
         } as IWizdomWebApiService;
     });
 
-  var oldWizdomLanguage = "en-us";
+    var oldWizdomLanguage = "en-us";
 
-  it("should update language if wizdom language and preferred language are different", async () => {    
-    var wizdomLanguageUpdate = new WizdomLanguageUpdate(getFakeSpHttpClient({
-        UserProfileProperties: [{"Key":"SPS-MUILanguages","Value":"da-dk,en-us"}]
-    }), mockWebApiService, mockCache);
+    var fakeConfig = {
+        Wizdom365: {
+            Languages: [{ Tag: "da-dk" }, { Tag: "en-us" }]
+        }
+    }
 
-    await wizdomLanguageUpdate.UpdateIfNeededAsync(fakeSpUrl, oldWizdomLanguage);
-    
-    expect(mockWebApiService.Put).toHaveBeenCalledTimes(1);
-    expect(mockWebApiService.Put).toHaveBeenCalledWith("api/wizdom/365/principals/me/language", "da-dk");    
-  });  
+    it("should update language if wizdom language and preferred language are different", async () => {
+        var wizdomLanguageUpdate = new WizdomLanguageUpdate(getFakeSpHttpClient({
+            UserProfileProperties: [{ "Key": "SPS-MUILanguages", "Value": "da-dk,en-us" }]
+        }), mockWebApiService, mockCache);
 
-  it("should update language if wizdom language and preferred language are different", async () => {    
-    var wizdomLanguageUpdate = new WizdomLanguageUpdate(getFakeSpHttpClient({
-        UserProfileProperties: [{"Key":"SPS-MUILanguages","Value":"en-us,da-dk"}]
-    }), mockWebApiService, mockCache);
+        await wizdomLanguageUpdate.UpdateIfNeededAsync(fakeSpUrl, oldWizdomLanguage, fakeConfig);
 
-    await wizdomLanguageUpdate.UpdateIfNeededAsync(fakeSpUrl, oldWizdomLanguage);
-    
-    expect(mockWebApiService.Put).toHaveBeenCalledTimes(0);    
-  });  
+        expect(mockWebApiService.Put).toHaveBeenCalledTimes(1);
+        expect(mockWebApiService.Put).toHaveBeenCalledWith("api/wizdom/365/principals/me/language", "da-dk");
+    });
+
+    it("should NOT update language if wizdom language and preferred language are the same", async () => {
+        var wizdomLanguageUpdate = new WizdomLanguageUpdate(getFakeSpHttpClient({
+            UserProfileProperties: [{ "Key": "SPS-MUILanguages", "Value": "en-us,da-dk" }]
+        }), mockWebApiService, mockCache);
+
+        await wizdomLanguageUpdate.UpdateIfNeededAsync(fakeSpUrl, oldWizdomLanguage, fakeConfig);
+
+        expect(mockWebApiService.Put).toHaveBeenCalledTimes(0);
+    });
+
+    it("should NOT update language if preferred language is not an active wizdom language", async () => {
+        var wizdomLanguageUpdate = new WizdomLanguageUpdate(getFakeSpHttpClient({
+            UserProfileProperties: [{ "Key": "SPS-MUILanguages", "Value": "de-de" }]
+        }), mockWebApiService, mockCache);
+
+        await wizdomLanguageUpdate.UpdateIfNeededAsync(fakeSpUrl, oldWizdomLanguage, fakeConfig);
+
+        expect(mockWebApiService.Put).toHaveBeenCalledTimes(0);
+    });
 });
