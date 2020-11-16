@@ -1,13 +1,14 @@
 import { IWizdomWebApiService } from "./webapi/webapi.interfaces";
 import { IWizdomCache } from "./caching/cache.interfaces";
 import { IHttpClient } from "../shared/httpclient.wrappers/http.interfaces";
+import { IWizdomContext } from "./context/context.interfaces";
 
 export class WizdomLanguageUpdate {
     
     constructor(private spHttpClient: IHttpClient, private wizdomWebApiService: IWizdomWebApiService, private cache: IWizdomCache) {    }
 
-    public async UpdateIfNeededAsync(webAbsoluteUrl: string, currentUserLanguage: string) { 
-        await this.cache.Localstorage.ExecuteCached("WizdomUserLanguage", async () => {            
+    public async UpdateIfNeededAsync(webAbsoluteUrl: string, currentUserLanguage: string, wizdomConfiguration: any) { 
+        await this.cache.Localstorage.ExecuteCached("WizdomUserLanguage", async () => {           
             var apiUrl ="/_api/SP.UserProfiles.PeopleManager/GetMyProperties";
             var response = await this.spHttpClient.get(webAbsoluteUrl + apiUrl);            
             var result:any = await response.json();
@@ -17,7 +18,16 @@ export class WizdomLanguageUpdate {
                 {
                     preferredLanguage = property.Value.split(',')[0];                        
                     if(preferredLanguage.toLowerCase() !== currentUserLanguage.toLowerCase()){
-                        this.wizdomWebApiService.Put("api/wizdom/365/principals/me/language", preferredLanguage);                        
+                        if(wizdomConfiguration && wizdomConfiguration.Wizdom365 && wizdomConfiguration.Wizdom365.Languages)
+                        {
+                            for(var i=0; i<wizdomConfiguration.Wizdom365.Languages.length; i++){
+                                if(wizdomConfiguration.Wizdom365.Languages[i].Tag.toLowerCase() == preferredLanguage.toLowerCase())
+                                {
+                                    this.wizdomWebApiService.Put("api/wizdom/365/principals/me/language", preferredLanguage); 
+                                    break;
+                                }
+                            }                            
+                        }                                                   
                     }
                     return; // break loop
                 }
