@@ -21,7 +21,7 @@ export class WizdomLanguageUpdate {
                         if(wizdomConfiguration && wizdomConfiguration.Wizdom365 && wizdomConfiguration.Wizdom365.Languages)
                         {
                             for(var i=0; i<wizdomConfiguration.Wizdom365.Languages.length; i++){
-                                if(wizdomConfiguration.Wizdom365.Languages[0].Tag.toLowerCase() == preferredLanguage.toLowerCase())
+                                if(wizdomConfiguration.Wizdom365.Languages[i].Tag.toLowerCase() == preferredLanguage.toLowerCase())
                                 {
                                     this.wizdomWebApiService.Put("api/wizdom/365/principals/me/language", preferredLanguage); 
                                     break;
