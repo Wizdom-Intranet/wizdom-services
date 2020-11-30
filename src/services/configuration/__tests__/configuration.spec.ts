@@ -11,6 +11,7 @@ describe("WizdomConfiguration", () => {
     var testWizdomContext; 
 
     // mock Caching
+    var defaultTimestampCacheValue = 0;
     testCache = jest.fn(() => ({
         Localstorage: jest.fn(() => ({            
             ExecuteCached: jest.fn((key: string, func: Function) => {
@@ -18,7 +19,7 @@ describe("WizdomConfiguration", () => {
             })
         }) as IWizdomLocalstorageCache)(),
         Timestamps: {
-            Get: (key) => Promise.resolve(42)
+            Get: (key) => Promise.resolve(defaultTimestampCacheValue)
         }
     }) as IWizdomCache)();
 
@@ -43,11 +44,11 @@ describe("WizdomConfiguration", () => {
             },
             writable: true // Allow overwrite of window.location in multiple test
         });
-    }
+    }    
 
     var executeConfigurationRequest = async () => {
         return await GetWizdomConfiguration(testHttpClient, testWizdomContext, testCache, ["TestModule", "TestModuleWithOneConfigFilters", "TestModuleWithMultipleConfigFilters"]);
-    };
+    };  
 
     beforeEach(() => {    
         // set text WizdomContext
@@ -103,11 +104,31 @@ describe("WizdomConfiguration", () => {
     
     it("should request configuration from blob", async () => {        
         testWizdomContext.blobUrl = "https://testbloburl/";
-        
+        defaultTimestampCacheValue = 42;
+
         await executeConfigurationRequest();
 
         expect(httpClientGetMock).toHaveBeenCalledTimes(1);
         expect(httpClientGetMock.mock.calls[0][0]).toBe("https://testbloburl/Base/Bundles/configuration.js?timestamp=42");
+    });   
+
+    it("should request add current time if cached timestamp is 0, undefined or null", async () => {        
+        testWizdomContext.blobUrl = "https://testbloburl/";
+        // fake date now
+        var dateToUse = new Date("2018"); // 1514764800000 = Monday, January 1, 2018 12:00:00 AM        
+        global["Date"].now = () => dateToUse.getTime();
+
+        defaultTimestampCacheValue = 0;
+        await executeConfigurationRequest();
+        expect(httpClientGetMock.mock.calls[0][0]).toBe("https://testbloburl/Base/Bundles/configuration.js?timestamp=1514764800000");
+
+        defaultTimestampCacheValue = undefined;
+        await executeConfigurationRequest();
+        expect(httpClientGetMock.mock.calls[1][0]).toBe("https://testbloburl/Base/Bundles/configuration.js?timestamp=1514764800000");
+
+        defaultTimestampCacheValue = null;
+        await executeConfigurationRequest();
+        expect(httpClientGetMock.mock.calls[2][0]).toBe("https://testbloburl/Base/Bundles/configuration.js?timestamp=1514764800000");
     });   
 
     it("should return configuration as object with no Wizdom365Config or Wizdom365AppUrl variables", async () => {            
