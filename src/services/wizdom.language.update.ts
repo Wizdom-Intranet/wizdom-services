@@ -24,7 +24,7 @@ export class WizdomLanguageUpdate {
                     var profileLanguages = property.Value.toLowerCase().split(',');
                     for (var profileLanguagesI = 0; profileLanguagesI < profileLanguages.length; profileLanguagesI++) {
                         // check if its a valid selected wizdom language
-                        for (var wizdomLanguageI = 0; wizdomLanguageI < wizdomConfiguration.Wizdom365.Languages.length; wizdomLanguageI++) {
+                        for (var wizdomLanguageI = 0; wizdomConfiguration.Wizdom365.Languages && wizdomLanguageI < wizdomConfiguration.Wizdom365.Languages.length; wizdomLanguageI++) {
                             if (wizdomConfiguration.Wizdom365.Languages[wizdomLanguageI].Tag.toLowerCase().indexOf(profileLanguages[profileLanguagesI]) == 0) {
                                 // found a match! lets update the principal if needed
                                 // console.log("found language match", profileLanguages[profileLanguagesI], wizdomConfiguration.Wizdom365.Languages[wizdomLanguageI].Tag.toLowerCase());
